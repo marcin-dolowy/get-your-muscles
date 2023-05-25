@@ -7,6 +7,8 @@
     "@syncfusion/ej2-base": "^21.2.3",
     "@syncfusion/ej2-dropdowns": "^21.2.6",
     "@syncfusion/ej2-react-buttons": "^21.2.6",
+    "@syncfusion/ej2-react-calendars": "^21.2.6",
+    "@syncfusion/ej2-react-dropdowns": "^21.2.6",
     "@syncfusion/ej2-react-schedule": "^21.2.6",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
