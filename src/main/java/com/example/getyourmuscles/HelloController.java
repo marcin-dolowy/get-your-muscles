@@ -43,15 +43,15 @@ public class HelloController {
         Reservation reservation1 = new Reservation(
                 3,
                 "Testing",
-                LocalDateTime.of(2018, 2, 11, 9, 0),
-                LocalDateTime.of(2018, 2, 11, 10, 0),
+                LocalDateTime.of(2023, 2, 13, 9, 0),
+                LocalDateTime.of(2023, 2, 13, 10, 0),
                 false
         );
         Reservation reservation2 = new Reservation(
                 4,
                 "Vacation",
-                LocalDateTime.of(2018, 2, 13, 9, 0),
-                LocalDateTime.of(2018, 2, 13, 10, 0),
+                LocalDateTime.of(2023, 2, 15, 11, 0),
+                LocalDateTime.of(2023, 2, 15, 12, 0),
                 false
         );
         reservations.add(reservation1);
