@@ -1,22 +1,19 @@
-package com.example.getyourmuscles.security.user;
+package com.example.getyourmuscles.security.user.model.entity;
 
 import com.example.getyourmuscles.event.model.Event;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor(force = true)
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -25,10 +22,17 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NonNull
     private String firstName;
+
+    @NonNull
     private String lastName;
 
+    @NonNull
+    @Column(unique = true)
     private String email;
+
+    @NonNull
     private String password;
 
     @Enumerated(value = EnumType.STRING)
@@ -48,7 +52,7 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
+    public @NonNull String getPassword() {
         return password;
     }
 

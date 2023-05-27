@@ -1,6 +1,6 @@
 package com.example.getyourmuscles.event.model;
 
-import com.example.getyourmuscles.security.user.User;
+import com.example.getyourmuscles.security.user.model.entity.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
