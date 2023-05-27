@@ -1,8 +1,9 @@
 package com.example.getyourmuscles.security.user.model.entity;
 
 import com.example.getyourmuscles.event.model.Event;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import lombok.*;
@@ -35,15 +36,16 @@ public class User implements UserDetails {
     @NonNull
     private String password;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal trainingPrice;
+
     @Enumerated(value = EnumType.STRING)
     private Role role;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
     private List<Event> memberEvents;
 
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
     private List<Event> trainerEvents;
 
     @Override

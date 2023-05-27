@@ -1,7 +1,6 @@
 package com.example.getyourmuscles.event.model;
 
 import com.example.getyourmuscles.security.user.model.entity.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -22,11 +21,9 @@ public class Event {
     private Long id;
 
     @ManyToOne
-    @JsonBackReference
     private User member;
 
     @ManyToOne
-    @JsonBackReference
     private User trainer;
 
     private String title;
@@ -42,5 +39,6 @@ public class Event {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endEvent;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal price;
 }

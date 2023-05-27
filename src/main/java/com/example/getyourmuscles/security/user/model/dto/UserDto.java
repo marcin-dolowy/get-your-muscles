@@ -1,6 +1,7 @@
 package com.example.getyourmuscles.security.user.model.dto;
 
 import com.example.getyourmuscles.event.model.Event;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,7 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String email;
+    private BigDecimal trainingPrice;
     private List<Event> memberEvents;
     private List<Event> trainerEvents;
 }
