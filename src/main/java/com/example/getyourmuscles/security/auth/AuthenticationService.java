@@ -4,7 +4,7 @@ import com.example.getyourmuscles.security.config.JwtService;
 import com.example.getyourmuscles.security.user.Role;
 import com.example.getyourmuscles.security.user.User;
 import com.example.getyourmuscles.security.user.UserRepository;
-import java.util.NoSuchElementException;
+import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,7 +39,7 @@ public class AuthenticationService {
 
         User user = userRepository
                 .findByEmail(request.getEmail())
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         String jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwtToken).build();
