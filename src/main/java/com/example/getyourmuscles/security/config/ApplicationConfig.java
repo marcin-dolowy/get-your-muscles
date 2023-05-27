@@ -1,7 +1,7 @@
 package com.example.getyourmuscles.security.config;
 
-import com.example.getyourmuscles.security.user.UserRepository;
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
+import com.example.getyourmuscles.security.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

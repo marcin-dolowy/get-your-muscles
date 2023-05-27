@@ -1,10 +1,10 @@
 package com.example.getyourmuscles.security.auth;
 
 import com.example.getyourmuscles.security.config.JwtService;
-import com.example.getyourmuscles.security.user.Role;
-import com.example.getyourmuscles.security.user.User;
-import com.example.getyourmuscles.security.user.UserRepository;
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
+import com.example.getyourmuscles.security.user.model.entity.Role;
+import com.example.getyourmuscles.security.user.model.entity.User;
+import com.example.getyourmuscles.security.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
