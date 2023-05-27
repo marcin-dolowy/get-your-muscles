@@ -1,5 +1,7 @@
-package com.example.getyourmuscles.security.user;
+package com.example.getyourmuscles.security.user.controller;
 
+import com.example.getyourmuscles.security.user.model.dto.UserDto;
+import com.example.getyourmuscles.security.user.service.UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +15,12 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> findById(@PathVariable Long id) {
+    public ResponseEntity<UserDto> findById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findById(id));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<User>> findAllUsers() {
+    public ResponseEntity<List<UserDto>> findAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
 
