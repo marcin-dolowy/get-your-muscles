@@ -5,13 +5,9 @@ import com.example.getyourmuscles.paypal.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 public class PaypalController {
 
     final PaypalService service;
@@ -29,7 +25,7 @@ public class PaypalController {
     }
 
     @PostMapping("/pay")
-    public String payment(@ModelAttribute("order") Order order) {
+    public String payment(@RequestBody Order order) {
         try {
             Payment payment = service.createPayment(
                     order.getPrice(),
@@ -41,7 +37,7 @@ public class PaypalController {
                     "http://localhost:8080/" + SUCCESS_URL);
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
-                    return "redirect:" + link.getHref();
+                    return link.getHref();
                 }
             }
 
@@ -49,7 +45,7 @@ public class PaypalController {
 
             e.printStackTrace();
         }
-        return "redirect:/";
+        return "failed";
     }
 
     @GetMapping(value = CANCEL_URL)
@@ -64,10 +60,12 @@ public class PaypalController {
             System.out.println(payment.toJSON());
             if (payment.getState().equals("approved")) {
                 return "success";
+//                return ResponseEntity.status(200).build();
             }
         } catch (PayPalRESTException e) {
             System.out.println(e.getMessage());
         }
-        return "redirect:/";
+        return "failed";
+//        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
     }
 }
