@@ -1,5 +1,7 @@
-package com.example.getyourmuscles.paypal;
+package com.example.getyourmuscles.paypal.controller;
 
+import com.example.getyourmuscles.paypal.model.Order;
+import com.example.getyourmuscles.paypal.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;

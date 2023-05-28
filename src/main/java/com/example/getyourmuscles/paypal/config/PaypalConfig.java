@@ -1,4 +1,4 @@
-package com.example.getyourmuscles.paypal;
+package com.example.getyourmuscles.paypal.config;
 
 import com.paypal.base.rest.APIContext;
 import java.util.HashMap;

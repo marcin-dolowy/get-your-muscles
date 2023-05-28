@@ -1,4 +1,4 @@
-package com.example.getyourmuscles.paypal;
+package com.example.getyourmuscles.paypal.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

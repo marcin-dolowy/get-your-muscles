@@ -1,5 +1,6 @@
 package com.example.getyourmuscles.security.config;
 
+import com.example.getyourmuscles.security.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
