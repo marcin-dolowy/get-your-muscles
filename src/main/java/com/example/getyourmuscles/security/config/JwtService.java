@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class JwtService {
 
-    // TODO create util package for this variable
-    private static final String SECRET_KEY = "6D597133743677397A24432646294A404E635266556A586E3272347537782141";
     private final EnvironmentVariables environmentVariables;
 
     public String extractUsername(String token) {
