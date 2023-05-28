@@ -1,5 +1,6 @@
 package com.example.getyourmuscles.security.config;
 
+import com.example.getyourmuscles.security.user.model.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,14 +11,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-    // TODO create util package for this variable
-    private static final String SECRET_KEY = "6D597133743677397A24432646294A404E635266556A586E3272347537782141";
+    private final EnvironmentVariables environmentVariables;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -28,11 +29,11 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(CustomUserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    public String generateToken(Map<String, Object> extractClaims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> extractClaims, CustomUserDetails userDetails) {
         return Jwts.builder()
                 .setClaims(extractClaims)
                 .setSubject(userDetails.getUsername())
@@ -42,7 +43,7 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token, CustomUserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
@@ -64,7 +65,7 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(environmentVariables.getJwtSecretKey());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

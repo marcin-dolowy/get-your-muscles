@@ -1,5 +1,6 @@
 package com.example.getyourmuscles.security.auth;
 
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ public class RegisterRequest {
 
     private String firstName;
     private String lastName;
+    private BigDecimal trainingPrice;
     private String email;
     private String password;
 }

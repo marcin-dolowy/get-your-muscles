@@ -10,6 +10,8 @@ public class GetYourMusclesApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GetYourMusclesApplication.class, args);
+        //        EnvironmentVariables environmentVariables = new EnvironmentVariables();
+        //        System.out.println(environmentVariables.getJwtSecretKey());
     }
 
     @Bean
