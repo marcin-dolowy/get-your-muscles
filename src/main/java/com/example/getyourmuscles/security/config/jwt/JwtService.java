@@ -1,5 +1,6 @@
-package com.example.getyourmuscles.security.config;
+package com.example.getyourmuscles.security.config.jwt;
 
+import com.example.getyourmuscles.security.config.EnvironmentVariables;
 import com.example.getyourmuscles.security.user.model.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

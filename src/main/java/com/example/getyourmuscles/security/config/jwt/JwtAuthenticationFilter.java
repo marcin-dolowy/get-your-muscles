@@ -1,4 +1,4 @@
-package com.example.getyourmuscles.security.config;
+package com.example.getyourmuscles.security.config.jwt;
 
 import com.example.getyourmuscles.security.user.model.CustomUserDetails;
 import jakarta.servlet.FilterChain;

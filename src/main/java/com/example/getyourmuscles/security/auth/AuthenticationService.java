@@ -1,6 +1,6 @@
 package com.example.getyourmuscles.security.auth;
 
-import com.example.getyourmuscles.security.config.JwtService;
+import com.example.getyourmuscles.security.config.jwt.JwtService;
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
 import com.example.getyourmuscles.security.user.model.CustomUserDetails;
 import com.example.getyourmuscles.security.user.model.entity.Role;
