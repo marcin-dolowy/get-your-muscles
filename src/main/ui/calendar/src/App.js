@@ -11,8 +11,6 @@ import axios from "axios";
 function App() {
     return (
         <BrowserRouter>
-            <br/>
-            <br/>
             <Routes>
                 <Route path="/" element={<HomePage />}/>
                 <Route path="/calendar" element={<CalendarPage />}/>

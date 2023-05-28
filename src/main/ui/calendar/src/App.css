@@ -36,3 +36,11 @@
         transform: rotate(360deg);
     }
 }
+
+.CustomCSS .e-calendar .e-content .e-selected span.e-day,
+.CustomCSS .e-calendar .e-content .e-selected span.e-day:hover,
+.CustomCSS .e-calendar .e-content .e-today.e-selected:hover span.e-day,
+.CustomCSS .e-calendar .e-content .e-today.e-selected span.e-day,
+.CustomCSS .e-calendar .e-content .e-selected:hover span.e-day  {
+    background-color: #35b86b;
+}
