@@ -1,6 +1,7 @@
 import * as React from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
+import axios from "axios";
 
 const HomePage = () => {
     const [email, setEmail] = useState('');
@@ -11,10 +12,18 @@ const HomePage = () => {
 
     const logIn = async () => {
         try {
+            const data = {email: email, password: password}
+            console.log(data);
+            const response = await axios.post("/api/v1/auth/authenticate", data);
+            console.log(response);
 
-
-
-            navigate('/calendar');
+            if (response.status === 200) {
+                console.log("Status 200");
+                navigate('/calendar');
+            }
+            else {
+                console.log("Status inny");
+            }
         } catch (e) {
             setError(e.message);
         }
