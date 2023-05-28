@@ -1,7 +1,8 @@
 import {createElement, extend, isNullOrUndefined} from '@syncfusion/ej2-base';
 import NavBar from "./NavBar";
 import * as React from "react";
-import {useEffect, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
+import { TokenContext } from './TokenContext';
 import axios from "axios";
 import {
     Agenda,
@@ -20,7 +21,7 @@ import {ButtonComponent} from "@syncfusion/ej2-react-buttons";
 const CalendarPage = () => {
     // na razie shardcodowana lista trenerów
     const trainers = ["Trainer 1", "Trainer 2", "Trainer 3"];
-
+    const { token } = useContext(TokenContext);
 
     const [events, setEvents] = useState([]);
     useEffect(() => {
@@ -164,9 +165,6 @@ const CalendarPage = () => {
                 endEvent: args.data[0].endEvent
             }
             events.push(newEvent);
-            setEvents(events);
-
-            //strzelac
 
         } else if (args.requestType === 'eventRemove') {
             args.cancel = true;
@@ -182,8 +180,6 @@ const CalendarPage = () => {
                     break;
                 }
             }
-
-            //strzelac
 
         } else if (args.requestType === 'eventChange') {
             args.cancel = true;
