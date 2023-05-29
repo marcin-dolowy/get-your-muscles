@@ -1,14 +1,12 @@
 import * as React from "react";
 import {Link, useNavigate} from "react-router-dom";
-import { TokenContext } from './TokenContext';
-import {useContext, useState} from "react";
+import {useState} from "react";
 import axios from "axios";
 
 const HomePage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const { token, setToken } = useContext(TokenContext);
 
 
     const navigate = useNavigate();
@@ -22,7 +20,7 @@ const HomePage = () => {
 
             if (response.status === 200) {
                 console.log("Status 200");
-                setToken(response.data.token);
+                localStorage.setItem('token', response.data.token);
                 navigate('/calendar');
             }
             else {
