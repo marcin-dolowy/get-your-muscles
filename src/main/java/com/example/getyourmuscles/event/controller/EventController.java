@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/event")
+@RequestMapping("api/v1/events")
 public class EventController {
     private final EventService eventService;
 
@@ -21,6 +21,11 @@ public class EventController {
     @GetMapping("/all")
     public ResponseEntity<List<Event>> findAll() {
         return ResponseEntity.ok(eventService.findAll());
+    }
+
+    @GetMapping("/member/{id}")
+    public ResponseEntity<List<Event>> findEventsByMemberId(@PathVariable Long id) {
+        return ResponseEntity.ok(eventService.findEventsByMemberId(id));
     }
 
     @PostMapping("/add")

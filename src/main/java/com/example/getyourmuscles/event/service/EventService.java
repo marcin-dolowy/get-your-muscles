@@ -35,6 +35,10 @@ public class EventService {
         return eventRepository.findAll();
     }
 
+    public List<Event> findEventsByMemberId(Long id) {
+        return eventRepository.findEventsByMemberId(id);
+    }
+
     public Event addEvent(Event event) {
         log.info("Adding event: {}", event);
         User trainer = userRepository.findById(event.getTrainer().getId()).orElseThrow(() -> {
