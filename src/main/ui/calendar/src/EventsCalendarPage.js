@@ -6,29 +6,36 @@ import axios from "axios";
 import {Agenda, Day, Inject, Month, ScheduleComponent, Week, WorkWeek} from '@syncfusion/ej2-react-schedule';
 import './App.css';
 
-const CalendarPage = () => {
+const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
     // na razie shardcodowana lista trenerów
     const trainers = ["Trainer 1", "Trainer 2", "Trainer 3"];
 
     const [events, setEvents] = useState([]);
     useEffect(() => {
         const loadData = async () => {
-            const response = await axios.get("/calendar");
-            const responseEvents = response.data;
-            let parsedEventsData = [];
+            let loggedUserEmail = localStorage.getItem("loggedUserEmail");
+            const responseForUser = await axios.get("/api/v1/users/find/" + loggedUserEmail);
+            const responseUser = responseForUser.data;
+            const responseUserId = responseUser.id;
+
+            const responseForEvents = await axios.get("api/v1/events/all");
+            const responseEvents = responseForEvents.data;
+            console.log(responseEvents, "responseEvents");
+
+            let parsedEventsData = []
             for (let i = 0; i < responseEvents.length; i++) {
                 let responseEvent = responseEvents[i];
                 let parsedEvent = {
                     id: responseEvent.id,
-                    trainer: responseEvent.trainer,
+                    trainer: (typeof responseEvent.trainer === 'object') ? (responseEvent.trainer.firstName + ' ' + responseEvent.trainer.lastName) : responseEvent.trainer,
                     title: responseEvent.title,
                     description: responseEvent.description,
-                    startEvent: new Date(responseEvent.startEvent + 'Z'),
-                    endEvent: new Date(responseEvent.endEvent + 'Z')
+                    startEvent: new Date(responseEvent.startEvent),
+                    endEvent: new Date(responseEvent.endEvent)
                 };
                 parsedEventsData.push(parsedEvent);
             }
-            setEvents(parsedEventsData)
+            setEvents(parsedEventsData);
         }
         loadData();
     }, []);
@@ -264,7 +271,7 @@ const CalendarPage = () => {
 
     return (
         <>
-            <NavBar/>
+            <NavBar isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} />
             <ScheduleComponent height='800px' selectedDate={new Date(2023, 1, 15)} eventSettings={eventSettings}
                                workHours={workHours} popupOpen={onPopupOpen.bind(this)} ref={scheduleObj}
                                editorTemplate={editorTemplate} actionBegin={onActionBegin} showQuickInfo={false}>
@@ -274,4 +281,4 @@ const CalendarPage = () => {
     );
 }
 
-export default CalendarPage;
+export default MemberCalendarPage;

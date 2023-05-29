@@ -1,6 +1,8 @@
 import {Link} from "react-router-dom";
+import {useState} from "react";
 
-const NavBar = () => {
+const NavBar = ({ isMyCalendar, setIsMyCalendar }) => {
+    console.log(isMyCalendar)
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary">
             <div className="container-fluid">
@@ -11,7 +13,10 @@ const NavBar = () => {
                             <Link className="nav-link" to="/">Home</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link" to="/calendar">Calendar</Link>
+                            {isMyCalendar
+                                ? <Link className="nav-link" onClick={() => {setIsMyCalendar(!isMyCalendar)}} to="/eventscalendar">Events Calendar</Link>
+                                : <Link className="nav-link" onClick={() => {setIsMyCalendar(!isMyCalendar)}} to="/mycalendar">Calendar</Link>
+                            }
                         </li>
                     </ul>
                     <div className="d-flex navbar-nav">
