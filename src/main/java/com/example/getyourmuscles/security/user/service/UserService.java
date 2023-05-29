@@ -25,6 +25,13 @@ public class UserService {
         });
     }
 
+    public UserDto findUserByEmail(String email) {
+        return userRepository.findUserByEmail(email).map(userModelMapper::toDto).orElseThrow(() -> {
+            log.warn("User not found with email: {}", email);
+            return new UserNotFoundException("User not found");
+        });
+    }
+
     public List<UserDto> findAll() {
         log.info("Finding all users");
         return userRepository.findAll().stream().map(userModelMapper::toDto).toList();
