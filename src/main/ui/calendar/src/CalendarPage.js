@@ -158,7 +158,7 @@ const CalendarPage = () => {
         }
     }
 
-    const onActionBegin = (args) => {
+    const onActionBegin = async (args) => {
         if (args.requestType === 'eventCreate') {
             args.cancel = true;
             console.log(args, "args - eventCreate");
@@ -193,11 +193,18 @@ const CalendarPage = () => {
             }
 
             //strzelac
-            // const response = await axios.post("/api/v1/event/add", {newEvent});
-            // console.log(response);
+            let token = localStorage.getItem("token");
+            if (token) {
+                const response = await axios.post("/api/v1/event/add", {newEvent}, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                console.log(response);
 
-            newEvents.push(newEvent);
-            setEvents(newEvents);
+                newEvents.push(newEvent);
+                setEvents(newEvents);
+            }
 
 
         } else if (args.requestType === 'eventRemove') {
@@ -254,11 +261,6 @@ const CalendarPage = () => {
             <div></div>
         );
     }
-
-    // useEffect(() => {
-    //     scheduleObj.current.refreshLayout();
-    //     console.log("FIRE!")
-    // }, [events]);
 
     return (
         <>

@@ -13,18 +13,17 @@ const HomePage = () => {
     const logIn = async () => {
         try {
             const data = {email: email, password: password}
-            console.log(data);
             const response = await axios.post("/api/v1/auth/authenticate", data);
-            console.log(response);
-
-            console.log(response.data.token, "token");
+            console.log(response, "response");
 
             if (response.status === 200) {
                 console.log("Status 200");
+                localStorage.setItem("token", response.data.token);
                 navigate("/calendar");
 
             } else {
                 console.log("Status inny");
+
             }
         } catch (e) {
             setError(e.message);
