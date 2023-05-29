@@ -60,12 +60,12 @@ public class PaypalController {
             System.out.println(payment.toJSON());
             if (payment.getState().equals("approved")) {
                 return "success";
-//                return ResponseEntity.status(200).build();
+                //                return ResponseEntity.status(200).build();
             }
         } catch (PayPalRESTException e) {
             System.out.println(e.getMessage());
         }
         return "failed";
-//        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+        //        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
     }
 }
