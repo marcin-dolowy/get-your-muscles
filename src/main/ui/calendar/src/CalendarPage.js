@@ -69,6 +69,7 @@ const CalendarPage = () => {
     }
     const eventSettings = {dataSource: events, fields: fieldsData};
 
+
     const onPopupOpen = (args) => {
         if (args.type === 'Editor') {
             let formElement = args.element.querySelector('.e-schedule-form');
@@ -147,14 +148,16 @@ const CalendarPage = () => {
         }
     }
 
-    const onActionBegin = async (args) => {
+    const onActionBegin = (args) => {
         if (args.requestType === 'eventCreate') {
             args.cancel = true;
             console.log(args, "args - eventCreate");
+            console.log(scheduleObj.current.getEvents(), "scheduleObj.current.getEvents()");
+            const calendarEvents = scheduleObj.current.getEvents();
 
-            args.data[0].id = events[events.length - 1].id + 1;
+            args.data[0].id = calendarEvents[calendarEvents.length - 1].id + 1;
             let newEvent = {
-                id: events.length === 0 ? 1 : (events[events.length - 1].id + 1),
+                id: events.length === 0 ? 1 : (calendarEvents[calendarEvents.length - 1].id + 1),
                 trainer: args.data[0].trainer,
                 title: args.data[0].title,
                 description: args.data[0].description,
@@ -162,12 +165,19 @@ const CalendarPage = () => {
                 endEvent: args.data[0].endEvent
             }
 
+            let newEvents = [];
+            for (let i = 0; i < events.length; i++) {
+                newEvents.push(events[i]);
+            }
+
+            //strzelac
             // const response = await axios.post("/api/v1/event/add", {newEvent});
             // console.log(response);
 
-            events.push(newEvent);
-            setEvents(events);
-            //strzelac
+            newEvents.push(newEvent);
+            setEvents(newEvents);
+
+
 
         } else if (args.requestType === 'eventRemove') {
             args.cancel = true;
@@ -218,12 +228,16 @@ const CalendarPage = () => {
 
     const editorTemplate = (props) => {
         console.log(events, "events - editorTemplate")
-        scheduleObj.current.refreshEvents();
 
         return (
            <div></div>
         );
     }
+
+    // useEffect(() => {
+    //     scheduleObj.current.refreshLayout();
+    //     console.log("FIRE!")
+    // }, [events]);
 
     return (
         <>
