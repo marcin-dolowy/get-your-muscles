@@ -3,17 +3,7 @@ import NavBar from "./NavBar";
 import * as React from "react";
 import {useEffect, useRef, useState} from "react";
 import axios from "axios";
-import {
-    Agenda,
-    Day,
-    Inject,
-    Month,
-    ScheduleComponent,
-    ViewDirective,
-    ViewsDirective,
-    Week,
-    WorkWeek
-} from '@syncfusion/ej2-react-schedule';
+import {Agenda, Day, Inject, Month, ScheduleComponent, Week, WorkWeek} from '@syncfusion/ej2-react-schedule';
 import './App.css';
 
 const CalendarPage = () => {
@@ -85,7 +75,11 @@ const CalendarPage = () => {
             let textareaDiv = createElement('div', {className: "mb-1"});
             formElement.firstChild.firstChild.firstChild.insertBefore(textareaDiv, formElement.firstChild.firstChild.firstChild.firstChild);
             let descriptionLabel = createElement('label', {className: "col-form-label", innerHTML: "Description"});
-            let descriptionTextArea = createElement('textarea', {id: "descriptionTextArea", className: "e-field form-control", attrs: { name: "description", rows: "3", cols: "50" }});
+            let descriptionTextArea = createElement('textarea', {
+                id: "descriptionTextArea",
+                className: "e-field form-control",
+                attrs: {name: "description", rows: "3", cols: "50"}
+            });
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(descriptionTextArea, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(descriptionLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
 
@@ -97,7 +91,11 @@ const CalendarPage = () => {
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(thirdEndDatesDiv, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild);
             let endEventLabel = createElement('label', {className: "col-form-label", innerHTML: "To"});
             let endEvent = convertDateToDatapicker(args.data.endEvent);
-            let endEventInput = createElement('input', {id: "endEventInput", className: "e-field form-control", attrs: { name: "endEvent", type: "datetime-local", value: endEvent, required: true }});
+            let endEventInput = createElement('input', {
+                id: "endEventInput",
+                className: "e-field form-control",
+                attrs: {name: "endEvent", type: "datetime-local", value: endEvent, required: true}
+            });
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(endEventInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(endEventLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
 
@@ -107,14 +105,22 @@ const CalendarPage = () => {
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(thirdStartDatesDiv, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild);
             let startEventLabel = createElement('label', {className: "col-form-label", innerHTML: "From"});
             let startEvent = convertDateToDatapicker(args.data.startEvent);
-            let startEventInput = createElement('input', {id: "startEventInput", className: "e-field form-control", attrs: { name: "startEvent", type: "datetime-local", value: startEvent, required: true }});
+            let startEventInput = createElement('input', {
+                id: "startEventInput",
+                className: "e-field form-control",
+                attrs: {name: "startEvent", type: "datetime-local", value: startEvent, required: true}
+            });
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(startEventInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(startEventLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
 
             let selectDiv = createElement('div', {className: "mb-1"});
             formElement.firstChild.firstChild.firstChild.insertBefore(selectDiv, formElement.firstChild.firstChild.firstChild.firstChild);
             let selectLabel = createElement('label', {className: "col-form-label", innerHTML: "Trainer"});
-            let trainerSelect = createElement('select', {id: "trainerSelect", className: "e-field form-select", attrs: {name: "trainer"}});
+            let trainerSelect = createElement('select', {
+                id: "trainerSelect",
+                className: "e-field form-select",
+                attrs: {name: "trainer"}
+            });
             for (let i = trainers.length - 1; i >= 0; i--) {
                 let trainerSelectOption = createElement('option', {attrs: {key: i.toString()}, innerHTML: trainers[i]});
                 trainerSelect.insertBefore(trainerSelectOption, trainerSelect.firstChild);
@@ -125,7 +131,11 @@ const CalendarPage = () => {
             let titleDiv = createElement('div', {className: "mb-1"});
             formElement.firstChild.firstChild.firstChild.insertBefore(titleDiv, formElement.firstChild.firstChild.firstChild.firstChild);
             let titleLabel = createElement('label', {className: "col-form-label", innerHTML: "Title"});
-            let titleInput = createElement('input', {id: "titleInput", className: "e-field form-control", attrs: { name: "title", type: "text", required: true }});
+            let titleInput = createElement('input', {
+                id: "titleInput",
+                className: "e-field form-control",
+                attrs: {name: "title", type: "text", required: true}
+            });
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(titleInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(titleLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
 
@@ -155,9 +165,21 @@ const CalendarPage = () => {
             console.log(scheduleObj.current.getEvents(), "scheduleObj.current.getEvents()");
             const calendarEvents = scheduleObj.current.getEvents();
 
-            args.data[0].id = calendarEvents[calendarEvents.length - 1].id + 1;
+            if (calendarEvents.length === 0) {
+                args.data[0].id = 1;
+            } else {
+                let maxIdEvent = calendarEvents[0];
+                calendarEvents.forEach((calEvent) => {
+                    if (calEvent.id > maxIdEvent.id) {
+                        maxIdEvent = calEvent;
+                    }
+                });
+                args.data[0].id = maxIdEvent.id + 1;
+                console.log(args.data, "args.data")
+            }
+
             let newEvent = {
-                id: events.length === 0 ? 1 : (calendarEvents[calendarEvents.length - 1].id + 1),
+                id: args.data[0].id,
                 trainer: args.data[0].trainer,
                 title: args.data[0].title,
                 description: args.data[0].description,
@@ -178,7 +200,6 @@ const CalendarPage = () => {
             setEvents(newEvents);
 
 
-
         } else if (args.requestType === 'eventRemove') {
             args.cancel = true;
             console.log(args, "args - eventRemove");
@@ -186,7 +207,7 @@ const CalendarPage = () => {
             let eventToRemoveId = args.data[0].id;
             for (let i = 0; i < events.length; i++) {
                 if (eventToRemoveId === events[i].id) {
-                    let newEvents = events.filter(function(item) {
+                    let newEvents = events.filter(function (item) {
                         return item.id !== eventToRemoveId;
                     });
                     setEvents(newEvents);
@@ -212,7 +233,7 @@ const CalendarPage = () => {
             let eventToRemoveId = args.data.id;
             for (let i = 0; i < events.length; i++) {
                 if (eventToRemoveId === events[i].id) {
-                    let editedEvents = events.filter(function(item) {
+                    let editedEvents = events.filter(function (item) {
                         return item.id !== eventToRemoveId;
                     });
                     editedEvents.push(editEvent);
@@ -230,7 +251,7 @@ const CalendarPage = () => {
         console.log(events, "events - editorTemplate")
 
         return (
-           <div></div>
+            <div></div>
         );
     }
 
