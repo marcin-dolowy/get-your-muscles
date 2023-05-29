@@ -1,4 +1,4 @@
-import {createElement, extend, isNullOrUndefined} from '@syncfusion/ej2-base';
+import {createElement} from '@syncfusion/ej2-base';
 import NavBar from "./NavBar";
 import * as React from "react";
 import {useEffect, useRef, useState} from "react";
@@ -15,12 +15,10 @@ import {
     WorkWeek
 } from '@syncfusion/ej2-react-schedule';
 import './App.css';
-import {ButtonComponent} from "@syncfusion/ej2-react-buttons";
 
 const CalendarPage = () => {
     // na razie shardcodowana lista trenerów
     const trainers = ["Trainer 1", "Trainer 2", "Trainer 3"];
-
 
     const [events, setEvents] = useState([]);
     useEffect(() => {
@@ -149,7 +147,7 @@ const CalendarPage = () => {
         }
     }
 
-    const onActionBegin = (args) => {
+    const onActionBegin = async (args) => {
         if (args.requestType === 'eventCreate') {
             args.cancel = true;
             console.log(args, "args - eventCreate");
@@ -163,9 +161,12 @@ const CalendarPage = () => {
                 startEvent: args.data[0].startEvent,
                 endEvent: args.data[0].endEvent
             }
+
+            // const response = await axios.post("/api/v1/event/add", {newEvent});
+            // console.log(response);
+
             events.push(newEvent);
             setEvents(events);
-
             //strzelac
 
         } else if (args.requestType === 'eventRemove') {
@@ -226,7 +227,6 @@ const CalendarPage = () => {
 
     return (
         <>
-            <br/><br/>
             <NavBar/>
             <ScheduleComponent height='800px' selectedDate={new Date(2023, 1, 15)} eventSettings={eventSettings}
                                workHours={workHours} popupOpen={onPopupOpen.bind(this)} ref={scheduleObj}
