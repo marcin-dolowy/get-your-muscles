@@ -100,7 +100,7 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let descriptionTextArea = createElement('textarea', {
                 id: "descriptionTextArea",
                 className: "e-field form-control",
-                attrs: {name: "description", rows: "3", cols: "50", disabled: "true"}
+                attrs: {name: "description", rows: "3", cols: "50"}
             });
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(descriptionTextArea, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(descriptionLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
@@ -116,7 +116,7 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let endEventInput = createElement('input', {
                 id: "endEventInput",
                 className: "e-field form-control",
-                attrs: {name: "endEvent", type: "datetime-local", value: endEvent, required: true, disabled: "true"}
+                attrs: {name: "endEvent", type: "datetime-local", value: endEvent, required: true}
             });
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(endEventInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(endEventLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
@@ -130,7 +130,7 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let startEventInput = createElement('input', {
                 id: "startEventInput",
                 className: "e-field form-control",
-                attrs: {name: "startEvent", type: "datetime-local", value: startEvent, required: true, disabled: "true"}
+                attrs: {name: "startEvent", type: "datetime-local", value: startEvent, required: true}
             });
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(startEventInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(startEventLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
@@ -141,7 +141,7 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let trainerSelect = createElement('select', {
                 id: "trainerSelect",
                 className: "e-field form-select",
-                attrs: {name: "trainer", disabled: "true"}
+                attrs: {name: "trainer"}
             });
             for (let i = trainers.length - 1; i >= 0; i--) {
                 let trainerSelectOption = createElement('option', {attrs: {key: i.toString()}, innerHTML: trainers[i]});
@@ -156,7 +156,7 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let titleInput = createElement('input', {
                 id: "titleInput",
                 className: "e-field form-control",
-                attrs: {name: "title", type: "text", required: true, disabled: "true"}
+                attrs: {name: "title", type: "text", required: true}
             });
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(titleInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(titleLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
@@ -215,18 +215,18 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             }
 
             //strzelac
-            let token = localStorage.getItem("token");
-            if (token) {
-                const response = await axios.post("/api/v1/event/add", {newEvent}, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                console.log(response);
-
-                newEvents.push(newEvent);
-                setEvents(newEvents);
-            }
+            // let token = localStorage.getItem("token");
+            // if (token) {
+            //     const response = await axios.post("/api/v1/event/add", {newEvent}, {
+            //         headers: {
+            //             'Authorization': `Bearer ${token}`
+            //         }
+            //     });
+            //     console.log(response);
+            //
+            // }
+            newEvents.push(newEvent);
+            setEvents(newEvents);
 
 
         } else if (args.requestType === 'eventRemove') {
