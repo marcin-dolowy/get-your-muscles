@@ -8,6 +8,7 @@ const RegisterPage = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
+    const [role, setRole] = useState('');
     const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
 
@@ -21,6 +22,7 @@ const RegisterPage = () => {
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
+                role: "USER",
                 password: password,
                 trainingPrice: 0,
             }

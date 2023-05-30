@@ -29,6 +29,16 @@ public class UserController {
         return ResponseEntity.ok(userService.findAll());
     }
 
+    @GetMapping("/all/trainers")
+    public ResponseEntity<List<UserDto>> findAllTrainers() {
+        return ResponseEntity.ok(userService.findAllTrainers());
+    }
+
+    @GetMapping("/all/members")
+    public ResponseEntity<List<UserDto>> findALlMembers() {
+        return ResponseEntity.ok(userService.findAllMembers());
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteById(@PathVariable Long id) {
         userService.deleteById(id);

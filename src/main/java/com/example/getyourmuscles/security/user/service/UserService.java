@@ -2,6 +2,7 @@ package com.example.getyourmuscles.security.user.service;
 
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
 import com.example.getyourmuscles.security.user.model.dto.UserDto;
+import com.example.getyourmuscles.security.user.model.entity.Role;
 import com.example.getyourmuscles.security.user.model.mapper.UserModelMapper;
 import com.example.getyourmuscles.security.user.repository.UserRepository;
 import java.util.List;
@@ -30,6 +31,20 @@ public class UserService {
             log.warn("User not found with email: {}", email);
             return new UserNotFoundException("User not found");
         });
+    }
+
+    public List<UserDto> findAllTrainers() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole().equals(Role.TRAINER))
+                .map(userModelMapper::toDto)
+                .toList();
+    }
+
+    public List<UserDto> findAllMembers() {
+        return userRepository.findAll().stream()
+                .filter(user -> user.getRole().equals(Role.USER))
+                .map(userModelMapper::toDto)
+                .toList();
     }
 
     public List<UserDto> findAll() {
