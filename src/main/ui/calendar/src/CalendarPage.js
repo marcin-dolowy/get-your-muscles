@@ -26,12 +26,26 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
 
             if (isMyCalendar) {
                 let loggedUserEmail = localStorage.getItem("loggedUserEmail");
-                const responseForUser = await axios.get("/api/v1/users/find/" + loggedUserEmail);
+
+                const responseForUser = await axios.get("/api/v1/users/find/" + loggedUserEmail, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
                 const responseUser = responseForUser.data;
                 const responseUserId = responseUser.id;
-                response = await axios.get("api/v1/events/member/" + responseUserId);
+                response = await axios.get("api/v1/events/member/" + responseUserId, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
             } else {
-                response = await axios.get("api/v1/events/all");
+                response = await axios.get("api/v1/events/all", {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
             }
             const responseEvents = response.data;
             console.log(responseEvents, "responseEvents");
