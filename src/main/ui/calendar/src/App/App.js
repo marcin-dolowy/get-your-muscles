@@ -1,13 +1,13 @@
 import * as React from 'react';
 import {BrowserRouter, Routes, Route, Link} from "react-router-dom";
-import CalendarPage from "./CalendarPage";
-import LoginPage from "./login/LoginPage";
-import NavBar from "./NavBar";
+import CalendarPage from "../pages/CalendarPage";
+import LoginPage from "../pages/LoginPage";
+import NavBar from "../NavBar";
 import './App.css';
-import NotFoundPage from "./NotFoundPage";
+import NotFoundPage from "../pages/NotFoundPage";
 import { registerLicense } from '@syncfusion/ej2-base';
 import {useState} from "react";
-import RegisterPage from "./register/RegisterPage";
+import RegisterPage from "../pages/RegisterPage";
 
 
 function App() {

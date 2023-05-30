@@ -1,10 +1,10 @@
 import {createElement, L10n} from '@syncfusion/ej2-base';
-import NavBar from "./NavBar";
+import NavBar from "../NavBar";
 import * as React from "react";
 import {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import {Agenda, Day, Inject, Month, ScheduleComponent, Week, WorkWeek} from '@syncfusion/ej2-react-schedule';
-import './App.css';
+import '../App/App.css';
 
 L10n.load({
     'en-US': {

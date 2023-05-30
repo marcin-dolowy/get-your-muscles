@@ -1,5 +1,5 @@
 import * as React from "react";
-import NavBar from "./NavBar";
+import NavBar from "../NavBar";
 
 const NotFoundPage = ({ isMyCalendar, setIsMyCalendar }) => {
     return (
