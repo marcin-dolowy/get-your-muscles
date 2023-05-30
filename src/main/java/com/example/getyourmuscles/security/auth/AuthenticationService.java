@@ -3,7 +3,6 @@ package com.example.getyourmuscles.security.auth;
 import com.example.getyourmuscles.security.config.jwt.JwtService;
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
 import com.example.getyourmuscles.security.user.model.CustomUserDetails;
-import com.example.getyourmuscles.security.user.model.entity.Role;
 import com.example.getyourmuscles.security.user.model.entity.User;
 import com.example.getyourmuscles.security.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .trainingPrice(request.getTrainingPrice())
-                .role(Role.USER)
+                .role(request.getRole())
                 .build();
         userRepository.save(user);
         String jwtToken = jwtService.generateToken(new CustomUserDetails(user));
