@@ -9,7 +9,7 @@ import './App.css';
 L10n.load({
     'en-US': {
         'schedule': {
-            'saveButton': 'Pay & Add',
+            'saveButton': 'Pay',
             'cancelButton': 'Close'
         },
     }
