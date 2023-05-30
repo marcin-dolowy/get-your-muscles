@@ -1,4 +1,4 @@
-import {createElement} from '@syncfusion/ej2-base';
+import {createElement, L10n} from '@syncfusion/ej2-base';
 import NavBar from "./NavBar";
 import * as React from "react";
 import {useEffect, useRef, useState} from "react";
@@ -6,20 +6,34 @@ import axios from "axios";
 import {Agenda, Day, Inject, Month, ScheduleComponent, Week, WorkWeek} from '@syncfusion/ej2-react-schedule';
 import './App.css';
 
-const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
+L10n.load({
+    'en-US': {
+        'schedule': {
+            'saveButton': 'Pay & Add',
+            'cancelButton': 'Close'
+        },
+    }
+});
+
+const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
     // na razie shardcodowana lista trenerów
     const trainers = ["Trainer 1", "Trainer 2", "Trainer 3"];
 
     const [events, setEvents] = useState([]);
     useEffect(() => {
         const loadData = async () => {
-            let loggedUserEmail = localStorage.getItem("loggedUserEmail");
-            const responseForUser = await axios.get("/api/v1/users/find/" + loggedUserEmail);
-            const responseUser = responseForUser.data;
-            const responseUserId = responseUser.id;
+            let response;
 
-            const responseForEvents = await axios.get("api/v1/events/all");
-            const responseEvents = responseForEvents.data;
+            if (isMyCalendar) {
+                let loggedUserEmail = localStorage.getItem("loggedUserEmail");
+                const responseForUser = await axios.get("/api/v1/users/find/" + loggedUserEmail);
+                const responseUser = responseForUser.data;
+                const responseUserId = responseUser.id;
+                response = await axios.get("api/v1/events/member/" + responseUserId);
+            } else {
+                response = await axios.get("api/v1/events/all");
+            }
+            const responseEvents = response.data;
             console.log(responseEvents, "responseEvents");
 
             let parsedEventsData = []
@@ -27,7 +41,7 @@ const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
                 let responseEvent = responseEvents[i];
                 let parsedEvent = {
                     id: responseEvent.id,
-                    trainer: (typeof responseEvent.trainer === 'object') ? (responseEvent.trainer.firstName + ' ' + responseEvent.trainer.lastName) : responseEvent.trainer,
+                    trainer: responseEvent.trainer.firstName + ' ' + responseEvent.trainer.lastName,
                     title: responseEvent.title,
                     description: responseEvent.description,
                     startEvent: new Date(responseEvent.startEvent),
@@ -38,7 +52,8 @@ const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             setEvents(parsedEventsData);
         }
         loadData();
-    }, []);
+        console.log("ile")
+    }, [isMyCalendar]);
 
 
     const convertDateToDatapicker = (date) => {
@@ -85,7 +100,7 @@ const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let descriptionTextArea = createElement('textarea', {
                 id: "descriptionTextArea",
                 className: "e-field form-control",
-                attrs: {name: "description", rows: "3", cols: "50"}
+                attrs: {name: "description", rows: "3", cols: "50", disabled: "true"}
             });
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(descriptionTextArea, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(descriptionLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
@@ -101,7 +116,7 @@ const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let endEventInput = createElement('input', {
                 id: "endEventInput",
                 className: "e-field form-control",
-                attrs: {name: "endEvent", type: "datetime-local", value: endEvent, required: true}
+                attrs: {name: "endEvent", type: "datetime-local", value: endEvent, required: true, disabled: "true"}
             });
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(endEventInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(endEventLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
@@ -115,7 +130,7 @@ const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let startEventInput = createElement('input', {
                 id: "startEventInput",
                 className: "e-field form-control",
-                attrs: {name: "startEvent", type: "datetime-local", value: startEvent, required: true}
+                attrs: {name: "startEvent", type: "datetime-local", value: startEvent, required: true, disabled: "true"}
             });
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(startEventInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
             formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.insertBefore(startEventLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild.firstChild)
@@ -126,7 +141,7 @@ const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let trainerSelect = createElement('select', {
                 id: "trainerSelect",
                 className: "e-field form-select",
-                attrs: {name: "trainer"}
+                attrs: {name: "trainer", disabled: "true"}
             });
             for (let i = trainers.length - 1; i >= 0; i--) {
                 let trainerSelectOption = createElement('option', {attrs: {key: i.toString()}, innerHTML: trainers[i]});
@@ -141,7 +156,7 @@ const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             let titleInput = createElement('input', {
                 id: "titleInput",
                 className: "e-field form-control",
-                attrs: {name: "title", type: "text", required: true}
+                attrs: {name: "title", type: "text", required: true, disabled: "true"}
             });
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(titleInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(titleLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
@@ -269,9 +284,47 @@ const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
         );
     }
 
+    // useEffect(() => {
+    //     const onChangeCalendar = async () => {
+    //         let response;
+    //         if (isMyCalendar) {
+    //             let loggedUserEmail = localStorage.getItem("loggedUserEmail");
+    //             const responseForUser = await axios.get("/api/v1/users/find/" + loggedUserEmail);
+    //             const responseUser = responseForUser.data;
+    //             const responseUserId = responseUser.id;
+    //             response = await axios.get("api/v1/events/member/" + responseUserId);
+    //         } else {
+    //             response = await axios.get("api/v1/events/all");
+    //         }
+    //         const responseEvents = response.data;
+    //         console.log(responseEvents, "responseEvents");
+    //
+    //         let parsedEventsData = []
+    //         for (let i = 0; i < responseEvents.length; i++) {
+    //             let responseEvent = responseEvents[i];
+    //             let parsedEvent = {
+    //                 id: responseEvent.id,
+    //                 trainer: responseEvent.trainer.firstName + ' ' + responseEvent.trainer.lastName,
+    //                 title: responseEvent.title,
+    //                 description: responseEvent.description,
+    //                 startEvent: new Date(responseEvent.startEvent),
+    //                 endEvent: new Date(responseEvent.endEvent)
+    //             };
+    //             parsedEventsData.push(parsedEvent);
+    //         }
+    //         setEvents(parsedEventsData);
+    //     }
+    //     onChangeCalendar();
+    //     console.log("ile")
+    // }, [isMyCalendar]);
+
     return (
         <>
-            <NavBar isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} />
+            <NavBar isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} onChangeCalendar={() => {
+                console.log(isMyCalendar, "przed isMyCalendar - NavBar");
+                setIsMyCalendar(!isMyCalendar);
+                console.log(isMyCalendar, "po isMyCalendar - NavBar");
+            }} />
             <ScheduleComponent height='800px' selectedDate={new Date(2023, 1, 15)} eventSettings={eventSettings}
                                workHours={workHours} popupOpen={onPopupOpen.bind(this)} ref={scheduleObj}
                                editorTemplate={editorTemplate} actionBegin={onActionBegin} showQuickInfo={false}>
@@ -281,4 +334,4 @@ const MemberCalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
     );
 }
 
-export default MemberCalendarPage;
+export default CalendarPage;

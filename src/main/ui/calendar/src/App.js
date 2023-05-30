@@ -1,13 +1,12 @@
 import * as React from 'react';
 import {BrowserRouter, Routes, Route, Link} from "react-router-dom";
-import MemberCalendarPage from "./MemberCalendarPage";
+import CalendarPage from "./CalendarPage";
 import HomePage from "./HomePage";
 import NavBar from "./NavBar";
 import './App.css';
 import NotFoundPage from "./NotFoundPage";
 import { registerLicense } from '@syncfusion/ej2-base';
 import {useState} from "react";
-import EventsCalendarPage from "./EventsCalendarPage";
 
 
 function App() {
@@ -18,8 +17,7 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<HomePage />}/>
-                    <Route path="/mycalendar" element={<MemberCalendarPage isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} />}/>
-                    <Route path="/eventscalendar" element={<EventsCalendarPage isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} />}/>
+                    <Route path="/calendar" element={<CalendarPage isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} />}/>
                     <Route path="*" element={<NotFoundPage isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} />} />
                 </Routes>
             </BrowserRouter>
