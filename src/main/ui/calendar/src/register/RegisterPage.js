@@ -24,17 +24,19 @@ const RegisterPage = () => {
                 password: password,
                 trainingPrice: 0,
             }
-            const response = await axios.post("/api/v1/auth/register", data);
-            console.log(response, "response");
+            if (password === repeatPassword) {
+                const response = await axios.post("/api/v1/auth/register", data);
+                console.log(response, "response");
 
-            if (response.status === 200 && password === repeatPassword) {
-                console.log("Status 200");
-                // localStorage.setItem("token", response.data.token);
-                // localStorage.setItem("loggedUserEmail", data.email);
-                navigate("/");
-            } else {
-                console.log("Status inny");
-
+                if (response.status === 200) {
+                    console.log("Status 200");
+                    navigate("/");
+                } else {
+                    console.log("Status inny");
+                }
+            }else{
+                    console.log("Nieprawidłowe hasło");
+                    //TODO add message on front that password is incorect
             }
         } catch (e) {
             setError(e.message);
