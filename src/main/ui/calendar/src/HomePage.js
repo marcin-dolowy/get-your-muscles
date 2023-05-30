@@ -1,6 +1,6 @@
 import * as React from "react";
-import {createSearchParams, Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import axios from "axios";
 
 const HomePage = () => {
@@ -58,8 +58,12 @@ const HomePage = () => {
 
                                 <div className="d-grid gap-2">
                                     <button className="btn btn-primary" onClick={logIn}>Login</button>
+                                    <div>
+                                        <p style={{display: "inline"}}>Not a member? </p>
+                                        <Link to="/register">Sign up now</Link>
+                                    </div>
                                     <hr/>
-                                    <button className="btn btn-danger">Sign in with google</button>
+                                    <button className=" btn btn-danger">Sign in with google</button>
                                 </div>
 
                             </div>
