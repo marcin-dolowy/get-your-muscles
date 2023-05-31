@@ -4,9 +4,6 @@ import {useState} from "react";
 import {toast} from "react-toastify";
 
 const NavBar = ({isMyCalendar, setIsMyCalendar, onChangeCalendar}) => {
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
-
     const logout = async () => {
         axios
             .post("/api/v1/auth/logout", "", {
@@ -33,7 +30,9 @@ const NavBar = ({isMyCalendar, setIsMyCalendar, onChangeCalendar}) => {
                             <Link className="nav-link" to="/">Home</Link>
                         </li>
                         <li className="nav-item">
-                            <button className="nav-link" onClick={() => {onChangeCalendar();}}>{isMyCalendar ? "Events Calendar" : "Calendar"}</button>
+                            <button className="nav-link" onClick={() => {
+                                onChangeCalendar();
+                            }}>{isMyCalendar ? "Events Calendar" : "Calendar"}</button>
                         </li>
                     </ul>
                     <div className="d-flex navbar-nav">
