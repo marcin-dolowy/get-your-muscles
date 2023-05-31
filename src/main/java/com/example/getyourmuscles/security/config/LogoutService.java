@@ -1,5 +1,6 @@
 package com.example.getyourmuscles.security.config;
 
+import com.example.getyourmuscles.security.token.Token;
 import com.example.getyourmuscles.security.token.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +24,7 @@ public class LogoutService implements LogoutHandler {
             return;
         }
         jwt = authHeader.substring(7);
-        var storedToken = tokenRepository.findByToken(jwt).orElse(null);
+        Token storedToken = tokenRepository.findByToken(jwt).orElse(null);
         if (storedToken != null) {
             storedToken.setExpired(true);
             storedToken.setRevoked(true);

@@ -61,7 +61,7 @@ public class AuthenticationService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         String jwtToken = jwtService.generateToken(new CustomUserDetails(user));
-        var refreshToken = jwtService.generateRefreshToken(new CustomUserDetails(user));
+        String refreshToken = jwtService.generateRefreshToken(new CustomUserDetails(user));
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
 
