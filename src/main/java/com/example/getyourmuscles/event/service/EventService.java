@@ -36,6 +36,7 @@ public class EventService {
     }
 
     public List<Event> findEventsByMemberId(Long id) {
+        log.info("Finding event by member ID: {}", id);
         return eventRepository.findEventsByMemberId(id);
     }
 
@@ -66,6 +67,7 @@ public class EventService {
         });
 
         objectMapper.readerForUpdating(existingEvent).readValue(updatedEvent);
+        log.info("Updating event with ID: {}", id);
         return eventRepository.save(existingEvent);
     }
 }
