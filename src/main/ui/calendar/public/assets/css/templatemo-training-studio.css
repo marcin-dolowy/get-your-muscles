@@ -611,16 +611,12 @@ banner
     z-index: -1;
 }
 
-#bg-video::-webkit-media-controls {
-    display: none !important;
-}
-
 .video-overlay {
     position: absolute;
     background-color: rgba(35,45,57,0.8);
     top: 0;
     left: 0;
-    bottom: 7px;
+    bottom: 0;
     width: 100%;
 }
 
@@ -710,7 +706,7 @@ subscribe
 
 #call-to-action {
   padding: 120px 0px;
-  background-image: url(../images/cta-bg.jpg);
+  background-image: url("../images/gym-video.mov");
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -837,14 +833,6 @@ Our Classes
 schedule
 ---------------------------------------------
 */
-
-#schedule {
-  padding: 0px 0px 140px 0px;
-  background-image: url(../images/schedule-bg.jpg);
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
 
 #schedule table {
   width: 100%;
@@ -1006,14 +994,6 @@ contact
 
 #contact-us .container-fluid .col-lg-6 {
   padding: 0px;
-}
-
-#contact-us .contact-form {
-  padding: 80px;
-  background-image: url(../images/contact-bg.jpg);
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 #contact-us .contact-form #contact {
