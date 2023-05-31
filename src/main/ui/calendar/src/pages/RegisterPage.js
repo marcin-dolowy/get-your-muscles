@@ -2,6 +2,8 @@ import * as React from "react";
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "axios";
+import {ToastContainer, toast} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const RegisterPage = () => {
 
@@ -17,30 +19,29 @@ const RegisterPage = () => {
     const navigate = useNavigate();
 
     const register = async () => {
-            const registerData = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                role: "USER",
-                password: password,
-                trainingPrice: 0,
-            }
+        const registerData = {
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            role: "USER",
+            password: password,
+            trainingPrice: 0,
+        }
 
-            if (password === repeatPassword) {
-                axios
-                    .post('/api/v1/auth/register', registerData)
-                    .then((response) => {
-                        console.log("Status 200");
-                        navigate("/login");
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        //TODO add pop up that there is a bug during register?
-                    });
-            }else{
-                    console.log("Nieprawidłowe hasło");
-                    //TODO add message on front that register data are incorect
-            }
+        if (password === repeatPassword) {
+            axios
+                .post('/api/v1/auth/register', registerData)
+                .then((response) => {
+                    toast.error("Successful registration");
+                    navigate("/login");
+                })
+                .catch((err) => {
+                    console.log(err)
+                    toast.error(err.response.data);
+                });
+        } else {
+            toast.error("Passwords are not the same");
+        }
     }
 
     return (
@@ -148,6 +149,7 @@ const RegisterPage = () => {
                     </div>
                 </div>
             </div>
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         </section>
     );
 }
