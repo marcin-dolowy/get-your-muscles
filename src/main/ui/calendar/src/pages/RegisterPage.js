@@ -13,9 +13,6 @@ const RegisterPage = () => {
     const [role, setRole] = useState('');
     const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
-
-    const [error, setError] = useState('');
-
     const navigate = useNavigate();
 
     const register = async () => {
@@ -149,7 +146,7 @@ const RegisterPage = () => {
                     </div>
                 </div>
             </div>
-            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar/>
         </section>
     );
 }
