@@ -35,7 +35,7 @@ const HomePage = () => {
             </header>
             <div className="main-banner" id="top">
                 <video style={{marginBottom: "-6px"}} autoPlay muted loop id="bg-video">
-                    <source src="/assets/images/gym-video.mov" type="video/mp4"/>
+                    <source src="/assets/images/gym-video.mp4" type="video/mp4"/>
                 </video>
                 <div className="video-overlay header-text">
                     <div className="caption">
