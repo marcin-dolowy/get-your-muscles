@@ -1,7 +1,9 @@
-import React from "react";
+import React, {useState} from "react";
 import {Link} from "react-router-dom";
 
 const HomePage = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
     return (
         <>
             <header className="header-area header-sticky">
@@ -17,10 +19,16 @@ const HomePage = () => {
                                         <Link to="/login">Sign In</Link>
                                     </li>
                                 </ul>
-                                <a className="menu-trigger">
-                                    <span>Menu</span>
-                                </a>
+                                <button style={{padding: "0", border: "none", background: "none"}}
+                                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                        className="menu-trigger">
+                                    <span>Sign In</span>
+                                </button>
                             </nav>
+                            {isMenuOpen &&
+                                <div className="row main-button">
+                                    <Link to="/login">Sign In</Link>
+                                </div>}
                         </div>
                     </div>
                 </div>
