@@ -1,28 +1,22 @@
-import {Link, useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 import axios from "axios";
-import {useState} from "react";
+import {toast} from "react-toastify";
 
 const NavBar = ({isMyCalendar, setIsMyCalendar, onChangeCalendar}) => {
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
-
     const logout = async () => {
-        try {
-            const response = await axios.post("/api/v1/auth/logout","", {
+        axios
+            .post("/api/v1/auth/logout", "", {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
+            })
+            .then((response) => {
+                toast.error("Successfully logged out");
+            })
+            .catch((err) => {
+                console.log(err)
+                toast.error(err.response.data);
             });
-            console.log(response, "logout response");
-
-            if (response.status === 200) {
-                console.log("Status 200");
-            } else {
-                console.log("Status inny");
-            }
-        } catch (e) {
-            // TODO exception handling
-        }
     }
 
     return (
@@ -35,7 +29,9 @@ const NavBar = ({isMyCalendar, setIsMyCalendar, onChangeCalendar}) => {
                             <Link className="nav-link" to="/">Home</Link>
                         </li>
                         <li className="nav-item">
-                            <button className="nav-link" onClick={() => {onChangeCalendar();}}>{isMyCalendar ? "Events Calendar" : "Calendar"}</button>
+                            <button className="nav-link" onClick={() => {
+                                onChangeCalendar();
+                            }}>{isMyCalendar ? "Events Calendar" : "Calendar"}</button>
                         </li>
                     </ul>
                     <div className="d-flex navbar-nav">

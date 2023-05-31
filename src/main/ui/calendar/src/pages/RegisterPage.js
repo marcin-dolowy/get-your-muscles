@@ -2,6 +2,8 @@ import * as React from "react";
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "axios";
+import {ToastContainer, toast} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const RegisterPage = () => {
 
@@ -11,37 +13,31 @@ const RegisterPage = () => {
     const [role, setRole] = useState('');
     const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
-
-    const [error, setError] = useState('');
-
     const navigate = useNavigate();
 
     const register = async () => {
-        try {
-            const data = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                role: "USER",
-                password: password,
-                trainingPrice: 0,
-            }
-            if (password === repeatPassword) {
-                const response = await axios.post("/api/v1/auth/register", data);
-                console.log(response, "response");
+        const registerData = {
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            role: "USER",
+            password: password,
+            trainingPrice: 0,
+        }
 
-                if (response.status === 200) {
-                    console.log("Status 200");
-                    navigate("/");
-                } else {
-                    console.log("Status inny");
-                }
-            }else{
-                    console.log("Nieprawidłowe hasło");
-                    //TODO add message on front that password is incorect
-            }
-        } catch (e) {
-            setError(e.message);
+        if (password === repeatPassword) {
+            axios
+                .post('/api/v1/auth/register', registerData)
+                .then((response) => {
+                    toast.error("Successful registration");
+                    navigate("/login");
+                })
+                .catch((err) => {
+                    console.log(err)
+                    toast.error(err.response.data);
+                });
+        } else {
+            toast.error("Passwords are not the same");
         }
     }
 
@@ -150,6 +146,7 @@ const RegisterPage = () => {
                     </div>
                 </div>
             </div>
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar/>
         </section>
     );
 }
