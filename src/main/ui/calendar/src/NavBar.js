@@ -1,7 +1,30 @@
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import axios from "axios";
 import {useState} from "react";
 
 const NavBar = ({isMyCalendar, setIsMyCalendar, onChangeCalendar}) => {
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const logout = async () => {
+        try {
+            const response = await axios.post("/api/v1/auth/logout","", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            console.log(response, "logout response");
+
+            if (response.status === 200) {
+                console.log("Status 200");
+            } else {
+                console.log("Status inny");
+            }
+        } catch (e) {
+            // TODO exception handling
+        }
+    }
+
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary">
             <div className="container-fluid">
@@ -16,7 +39,7 @@ const NavBar = ({isMyCalendar, setIsMyCalendar, onChangeCalendar}) => {
                         </li>
                     </ul>
                     <div className="d-flex navbar-nav">
-                        <Link className="nav-link" to="/logout">Logout</Link>
+                        <Link className="nav-link" to="/" onClick={logout}>Logout</Link>
                     </div>
                 </div>
             </div>
