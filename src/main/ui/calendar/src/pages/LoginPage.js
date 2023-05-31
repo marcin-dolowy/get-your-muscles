@@ -11,23 +11,19 @@ const LoginPage = () => {
     const navigate = useNavigate();
 
     const logIn = async () => {
-        try {
-            const data = {email: email, password: password}
-            const response = await axios.post("/api/v1/auth/authenticate", data);
-            console.log(response, "response");
+            const loginData = {email: email, password: password}
 
-            if (response.status === 200) {
-                console.log("Status 200");
-                localStorage.setItem("token", response.data.access_token);
-                localStorage.setItem("loggedUserEmail", data.email);
-                navigate("/calendar");
-            } else {
-                console.log("Status inny");
-
-            }
-        } catch (e) {
-            setError(e.message);
-        }
+            axios
+                .post('/api/v1/auth/authenticate', loginData)
+                .then((response) => {
+                    localStorage.setItem("token", response.data.token);
+                    localStorage.setItem("loggedUserEmail", loginData.email);
+                    navigate("/calendar");
+                })
+                .catch((err) => {
+                    console.log(err);
+                    //TODO add pop up that password is incorrect
+                });
     }
 
     return (
