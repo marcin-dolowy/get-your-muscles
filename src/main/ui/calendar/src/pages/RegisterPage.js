@@ -17,8 +17,7 @@ const RegisterPage = () => {
     const navigate = useNavigate();
 
     const register = async () => {
-        try {
-            const data = {
+            const registerData = {
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
@@ -26,23 +25,22 @@ const RegisterPage = () => {
                 password: password,
                 trainingPrice: 0,
             }
-            if (password === repeatPassword) {
-                const response = await axios.post("/api/v1/auth/register", data);
-                console.log(response, "response");
 
-                if (response.status === 200) {
-                    console.log("Status 200");
-                    navigate("/");
-                } else {
-                    console.log("Status inny");
-                }
+            if (password === repeatPassword) {
+                axios
+                    .post('/api/v1/auth/register', registerData)
+                    .then((response) => {
+                        console.log("Status 200");
+                        navigate("/login");
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        //TODO add pop up that there is a bug during register?
+                    });
             }else{
                     console.log("Nieprawidłowe hasło");
-                    //TODO add message on front that password is incorect
+                    //TODO add message on front that register data are incorect
             }
-        } catch (e) {
-            setError(e.message);
-        }
     }
 
     return (
