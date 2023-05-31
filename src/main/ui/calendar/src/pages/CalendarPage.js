@@ -17,12 +17,35 @@ L10n.load({
 
 const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
     // na razie shardcodowana lista trenerów
-    const trainers = ["Trainer 1", "Trainer 2", "Trainer 3"];
-
+    const [trainers, setTrainers] = useState(["Trainer 1", "Trainer 2", "Trainer 3"]);
     const [events, setEvents] = useState([]);
+    const CURRENCY = "zł";
+
     useEffect(() => {
         const loadData = async () => {
             let response;
+
+            const responseForTrainers = await axios.get("/api/v1/users/all/trainers", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            const responseTrainersData = responseForTrainers.data;
+
+            let parsedTrainersData = [];
+            for (let i = 0; i < responseTrainersData.length; i++) {
+                let responseTrainer = responseTrainersData[i];
+                let parsedTrainer = {
+                    id: responseTrainer.id,
+                    firstName: responseTrainer.firstName,
+                    lastName: responseTrainer.lastName,
+                    trainingPrice: responseTrainer.trainingPrice
+                };
+                parsedTrainersData.push(parsedTrainer);
+            }
+            setTrainers(parsedTrainersData);
+
+            console.log(parsedTrainersData, "parsedTrainersData");
 
             if (isMyCalendar) {
                 let loggedUserEmail = localStorage.getItem("loggedUserEmail");
@@ -47,19 +70,20 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
                     }
                 });
             }
-            const responseEvents = response.data;
-            console.log(responseEvents, "responseEvents");
+            const responseEventsData = response.data;
+            console.log(responseEventsData, "responseEventsData");
 
-            let parsedEventsData = []
-            for (let i = 0; i < responseEvents.length; i++) {
-                let responseEvent = responseEvents[i];
+            let parsedEventsData = [];
+            for (let i = 0; i < responseEventsData.length; i++) {
+                let responseEvent = responseEventsData[i];
                 let parsedEvent = {
                     id: responseEvent.id,
-                    trainer: responseEvent.trainer.firstName + ' ' + responseEvent.trainer.lastName,
+                    trainer: responseEvent.trainer.firstName + ' ' + responseEvent.trainer.lastName + " - " + responseEvent.trainer.trainingPrice + CURRENCY,
                     title: responseEvent.title,
                     description: responseEvent.description,
                     startEvent: new Date(responseEvent.startEvent),
-                    endEvent: new Date(responseEvent.endEvent)
+                    endEvent: new Date(responseEvent.endEvent),
+                    trainerId: parseInt(responseEvent.trainer.id)
                 };
                 parsedEventsData.push(parsedEvent);
             }
@@ -91,7 +115,8 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
         subject: {name: 'title'},
         description: {name: 'description'},
         startTime: {name: 'startEvent'},
-        endTime: {name: 'endEvent'}
+        endTime: {name: 'endEvent'},
+        trainerId: {name: 'trainerId'}
     }
     const eventSettings = {dataSource: events, fields: fieldsData};
 
@@ -158,7 +183,8 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
                 attrs: {name: "trainer"}
             });
             for (let i = trainers.length - 1; i >= 0; i--) {
-                let trainerSelectOption = createElement('option', {attrs: {key: i.toString()}, innerHTML: trainers[i]});
+                let convertedTrainer = trainers[i].firstName + " " + trainers[i].lastName + " - " + parseFloat(trainers[i].trainingPrice).toFixed(2) + CURRENCY;
+                let trainerSelectOption = createElement('option', {attrs: {key: trainers[i].id.toString()}, innerHTML: convertedTrainer});
                 trainerSelect.insertBefore(trainerSelectOption, trainerSelect.firstChild);
             }
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(trainerSelect, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
@@ -175,12 +201,24 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(titleInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
             formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(titleLabel, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
 
+            //hidden
+            let trainerIdInput = createElement('input', {
+                id: "trainerIdInput",
+                className: "e-field",
+                attrs: {name: "trainerId", type: "text", disabled: "true", hidden: "true"}
+            });
+            console.log(args.data, "args.data - popUp");
+            formElement.firstChild.firstChild.firstChild.firstChild.insertBefore(trainerIdInput, formElement.firstChild.firstChild.firstChild.firstChild.firstChild);
 
             let titleInputElement = args.element.querySelector('#titleInput');
             let trainerSelectElement = args.element.querySelector('#trainerSelect');
             let startEventInputElement = args.element.querySelector('#startEventInput');
             let endEventInputElement = args.element.querySelector('#endEventInput');
             let descriptionTextAreaElement = args.element.querySelector('#descriptionTextArea');
+
+            const trainerSelectedOptionElement = trainerSelectElement.options[trainerSelectElement.selectedIndex];
+            const trainerId = trainerSelectedOptionElement.getAttribute("key");
+            trainerIdInput.value = parseInt(trainerId);
 
             titleInputElement.value = args.data.title || "";
             if (args.data.trainer) {
@@ -211,7 +249,7 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
                     }
                 });
                 args.data[0].id = maxIdEvent.id + 1;
-                console.log(args.data, "args.data")
+                console.log(args.data, "args.data - eventCreate")
             }
 
             let newEvent = {
@@ -220,7 +258,8 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
                 title: args.data[0].title,
                 description: args.data[0].description,
                 startEvent: args.data[0].startEvent,
-                endEvent: args.data[0].endEvent
+                endEvent: args.data[0].endEvent,
+                trainerId: parseInt(args.data[0].trainerId)
             }
 
             let newEvents = [];
@@ -228,6 +267,7 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
                 newEvents.push(events[i]);
             }
 
+            // TODO tu przekierowanie na strone paypal
             //strzelac
             // let token = localStorage.getItem("token");
             // if (token) {
@@ -270,7 +310,8 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
                 title: args.data.title,
                 description: args.data.description,
                 startEvent: args.data.startEvent,
-                endEvent: args.data.endEvent
+                endEvent: args.data.endEvent,
+                trainerId: parseInt(args.data.trainerId)
             }
 
             let eventToRemoveId = args.data.id;
@@ -298,40 +339,6 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
         );
     }
 
-    // useEffect(() => {
-    //     const onChangeCalendar = async () => {
-    //         let response;
-    //         if (isMyCalendar) {
-    //             let loggedUserEmail = localStorage.getItem("loggedUserEmail");
-    //             const responseForUser = await axios.get("/api/v1/users/find/" + loggedUserEmail);
-    //             const responseUser = responseForUser.data;
-    //             const responseUserId = responseUser.id;
-    //             response = await axios.get("api/v1/events/member/" + responseUserId);
-    //         } else {
-    //             response = await axios.get("api/v1/events/all");
-    //         }
-    //         const responseEvents = response.data;
-    //         console.log(responseEvents, "responseEvents");
-    //
-    //         let parsedEventsData = []
-    //         for (let i = 0; i < responseEvents.length; i++) {
-    //             let responseEvent = responseEvents[i];
-    //             let parsedEvent = {
-    //                 id: responseEvent.id,
-    //                 trainer: responseEvent.trainer.firstName + ' ' + responseEvent.trainer.lastName,
-    //                 title: responseEvent.title,
-    //                 description: responseEvent.description,
-    //                 startEvent: new Date(responseEvent.startEvent),
-    //                 endEvent: new Date(responseEvent.endEvent)
-    //             };
-    //             parsedEventsData.push(parsedEvent);
-    //         }
-    //         setEvents(parsedEventsData);
-    //     }
-    //     onChangeCalendar();
-    //     console.log("ile")
-    // }, [isMyCalendar]);
-
     return (
         <>
             <NavBar isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} onChangeCalendar={() => {
@@ -339,7 +346,7 @@ const CalendarPage = ({ isMyCalendar, setIsMyCalendar }) => {
                 setIsMyCalendar(!isMyCalendar);
                 console.log(isMyCalendar, "po isMyCalendar - NavBar");
             }} />
-            <ScheduleComponent height='800px' selectedDate={new Date(2023, 1, 15)} eventSettings={eventSettings}
+            <ScheduleComponent height='850px' selectedDate={new Date(2023, 1, 15)} eventSettings={eventSettings}
                                workHours={workHours} popupOpen={onPopupOpen.bind(this)} ref={scheduleObj}
                                editorTemplate={editorTemplate} actionBegin={onActionBegin} showQuickInfo={false}>
                 <Inject services={[Day, Week, WorkWeek, Month, Agenda]}/>
