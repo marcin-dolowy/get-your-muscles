@@ -20,6 +20,11 @@ public class EventController {
         return ResponseEntity.ok(eventService.findById(id));
     }
 
+    @GetMapping("/last")
+    public ResponseEntity<Long> findLastEventId() {
+        return ResponseEntity.ok(eventService.findLastEventId());
+    }
+
     @GetMapping("/all")
     public ResponseEntity<List<Event>> findAll() {
         return ResponseEntity.ok(eventService.findAll());
