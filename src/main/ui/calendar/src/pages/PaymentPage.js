@@ -20,10 +20,8 @@ const PaymentPage = () => {
             description: description
         };
 
-        console.log(localStorage.getItem('token'));
-
         axios
-            .post("/pay", paymentData,{
+            .post("/pay", paymentData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -91,7 +89,7 @@ const PaymentPage = () => {
                                         value={price}
                                         onChange={(e) => setPrice(e.target.value)}
                                         readOnly
-                                        style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
                                     />
                                 </Form.Group>
                             </Col>
@@ -120,7 +118,7 @@ const PaymentPage = () => {
                                         value={paymentMethod}
                                         onChange={(e) => setPaymentMethod(e.target.value)}
                                         readOnly
-                                        style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
                                     />
                                 </Form.Group>
                             </Col>
@@ -132,7 +130,7 @@ const PaymentPage = () => {
                                         value={title}
                                         onChange={(e) => setTitle(e.target.value)}
                                         readOnly
-                                        style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
                                     />
                                 </Form.Group>
                             </Col>
@@ -146,7 +144,7 @@ const PaymentPage = () => {
                                         value={trainer}
                                         onChange={(e) => setTrainer(e.target.value)}
                                         readOnly
-                                        style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
                                     />
                                 </Form.Group>
                             </Col>
@@ -158,7 +156,7 @@ const PaymentPage = () => {
                                         value={member}
                                         onChange={(e) => setMember(e.target.value)}
                                         readOnly
-                                        style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
                                     />
                                 </Form.Group>
                             </Col>
@@ -174,7 +172,7 @@ const PaymentPage = () => {
                                         value={description}
                                         onChange={(e) => setDescription(e.target.value)}
                                         readOnly
-                                        style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
                                     />
                                 </Form.Group>
                             </Col>
@@ -186,7 +184,7 @@ const PaymentPage = () => {
                                         value={startEvent}
                                         onChange={(e) => setStartEvent(e.target.value)}
                                         readOnly
-                                        style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
                                     />
                                 </Form.Group>
                             </Col>
@@ -198,7 +196,7 @@ const PaymentPage = () => {
                                         value={endEvent}
                                         onChange={(e) => setEndEvent(e.target.value)}
                                         readOnly
-                                        style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
                                     />
                                 </Form.Group>
                             </Col>
