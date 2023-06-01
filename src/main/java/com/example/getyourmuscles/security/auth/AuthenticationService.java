@@ -4,6 +4,7 @@ import com.example.getyourmuscles.security.config.jwt.JwtService;
 import com.example.getyourmuscles.security.token.Token;
 import com.example.getyourmuscles.security.token.TokenRepository;
 import com.example.getyourmuscles.security.token.TokenType;
+import com.example.getyourmuscles.security.user.exception.EmailAlreadyExistsException;
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
 import com.example.getyourmuscles.security.user.model.CustomUserDetails;
 import com.example.getyourmuscles.security.user.model.entity.User;
@@ -40,9 +41,10 @@ public class AuthenticationService {
                 .role(request.getRole())
                 .build();
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()){
-            throw new IllegalArgumentException("Email already exists");
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email already exists");
         }
+
         User savedUser = userRepository.save(user);
         String jwtToken = jwtService.generateToken(new CustomUserDetails(user));
         String refreshToken = jwtService.generateRefreshToken(new CustomUserDetails(user));
