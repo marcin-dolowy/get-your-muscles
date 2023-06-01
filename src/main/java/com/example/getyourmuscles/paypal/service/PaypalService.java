@@ -8,9 +8,11 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class PaypalService {
 
@@ -50,6 +52,7 @@ public class PaypalService {
         redirectUrls.setReturnUrl(successUrl);
         payment.setRedirectUrls(redirectUrls);
 
+        log.info("Creating payment: {}", payment);
         return payment.create(apiContext);
     }
 
@@ -58,6 +61,8 @@ public class PaypalService {
         payment.setId(paymentId);
         PaymentExecution paymentExecute = new PaymentExecution();
         paymentExecute.setPayerId(payerId);
+
+        log.info("Executing payment with paymentID: {} for payerID: {}", paymentId, payerId);
         return payment.execute(apiContext, paymentExecute);
     }
 }

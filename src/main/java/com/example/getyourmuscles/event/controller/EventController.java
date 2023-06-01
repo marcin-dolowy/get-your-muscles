@@ -1,7 +1,9 @@
 package com.example.getyourmuscles.event.controller;
 
 import com.example.getyourmuscles.event.model.Event;
+import com.example.getyourmuscles.event.model.EventSession;
 import com.example.getyourmuscles.event.service.EventService;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,11 @@ public class EventController {
     @PostMapping("/add")
     public ResponseEntity<Event> addEvent(@RequestBody Event event) {
         return ResponseEntity.ok(eventService.addEvent(event));
+    }
+
+    @GetMapping("/price")
+    public ResponseEntity<BigDecimal> countTrainingPrice(@RequestBody EventSession eventSession) {
+        return ResponseEntity.ok(eventService.countTrainingPrice(eventSession));
     }
 
     @DeleteMapping("/{id}")
