@@ -1,5 +1,6 @@
 package com.example.getyourmuscles.event.service;
 
+import com.example.getyourmuscles.event.exception.EventNotFoundException;
 import com.example.getyourmuscles.event.model.Event;
 import com.example.getyourmuscles.event.model.EventSession;
 import com.example.getyourmuscles.event.repository.EventRepository;
@@ -11,7 +12,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -30,8 +30,19 @@ public class EventService {
         log.info("Finding event by ID: {}", id);
         return eventRepository.findById(id).orElseThrow(() -> {
             log.warn("Event not found with ID: {}", id);
-            return new NoSuchElementException("Event not found");
+            return new EventNotFoundException("Event not found");
         });
+    }
+
+    public Long findLastEventId() {
+        log.info("Finding ID for last event");
+        return eventRepository
+                .findFirstByOrderByIdDesc()
+                .orElseThrow(() -> {
+                    log.warn("Event not found");
+                    return new EventNotFoundException("Event not found");
+                })
+                .getId();
     }
 
     public List<Event> findAll() {
@@ -83,7 +94,7 @@ public class EventService {
     public Event updateEvent(Long id, String updatedEvent) {
         Event existingEvent = eventRepository.findById(id).orElseThrow(() -> {
             log.warn("Event not found with ID: {}", id);
-            return new RuntimeException("Event not found with id: " + id);
+            return new EventNotFoundException("Event not found with id: " + id);
         });
 
         objectMapper.readerForUpdating(existingEvent).readValue(updatedEvent);
