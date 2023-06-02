@@ -156,7 +156,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
     }, [isMyCalendar]);
 
     const calculateTotalPrice = () => {
-        const trainerId = trainerObj.current.options[trainerObj.current.selectedIndex].getAttribute("data-key");
+        const trainerId = trainerObj.current.options[trainerObj.current.selectedIndex]?.getAttribute("data-key");
         const orderData = {
             id: parseInt(trainerId),
             startEvent: formatDate(startEventObj.current.value, false),
@@ -250,7 +250,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         console.log(args, "args - onPopupOpen")
         if (args.type === 'Editor') {
 
-            const trainerId = trainerObj.current.options[trainerObj.current.selectedIndex].getAttribute("data-key");
+            const trainerId = trainerObj.current.options[trainerObj.current.selectedIndex]?.getAttribute("data-key");
             const orderData = {
                 id: parseInt(trainerId),
                 startEvent: formatDate(args.data.startEvent, false),
@@ -306,7 +306,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                     const trainerId = parseInt(trainers[i].id);
                     const trainerSelectElement = args.element.querySelector('#trainerSelect');
                     const trainerSelectedOptionElement = trainerSelectElement.options[trainerSelectElement.selectedIndex];
-                    const selectedTrainerId = parseInt(trainerSelectedOptionElement.getAttribute("data-key"));
+                    const selectedTrainerId = parseInt(trainerSelectedOptionElement?.getAttribute("data-key"));
 
                     if (trainerId === selectedTrainerId) {
                         args.data.trainerId = trainerId;
