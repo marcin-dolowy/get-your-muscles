@@ -6,7 +6,7 @@ import axios from "axios";
 import {Agenda, Day, Inject, Month, ScheduleComponent, Week, WorkWeek} from '@syncfusion/ej2-react-schedule';
 import '../App/App.css';
 import {toast} from "react-toastify";
-import PaymentSummaryModal from "../PaymentSummaryModal";
+import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 
 L10n.load({
     'en-US': {
@@ -214,9 +214,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             console.log(args.data[0])
 
             handleShow(args.data[0]);
-            let parsedEventsData = await getEventsByCalendar();
 
-            setEvents(parsedEventsData);
 
         } else if (args.requestType === 'eventRemove') {
             args.cancel = true;
@@ -379,6 +377,31 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         );
     }
 
+    const payForTraining = (price, currency, paymentMethod, description) => {
+        const paymentData = {
+            price: price,
+            currency: currency,
+            method: paymentMethod,
+            intent: "sale",
+            description: description
+        };
+
+        axios
+            .post("/pay", paymentData, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+            .then((response) => {
+                window.location.replace(response.data)
+                handleClose();
+            })
+            .catch((err) => {
+                console.log(err);
+                toast.error(err.response.data);
+            });
+    };
+
     return (
         <>
             <NavBar isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} onChangeCalendar={() => {
@@ -389,19 +412,151 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                                editorTemplate={editorTemplate} showQuickInfo={false} actionBegin={onActionBegin}>
                 <Inject services={[Day, Week, WorkWeek, Month, Agenda]}/>
             </ScheduleComponent>
-            <PaymentSummaryModal
+            <Modal
                 show={modalShow}
                 onHide={handleClose}
-                price={price} setPrice={setPrice}
-                currency={currency} setCurrency={setCurrency}
-                paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod}
-                title={title} setTitle={setTitle}
-                trainer={trainer} setTrainer={setTrainer}
-                member={member} setMember={setMember}
-                description={description} setDescription={setDescription}
-                startEvent={startEvent} setStartEvent={setStartEvent}
-                endEvent={endEvent} setEndEvent={setEndEvent}
-            />
+                size="lg"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+                backdrop="static"
+                keyboard={false}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        Payment Summary
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Row>
+                            <Col>
+                                <Form.Group controlId="formPrice">
+                                    <Form.Label>Price</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={price}
+                                        onChange={(e) => setPrice(e.target.value)}
+                                        readOnly
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="formCurrency">
+                                    <Form.Label>Currency</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        value={currency}
+                                        onChange={(e) => setCurrency(e.target.value)}
+                                    >
+                                        <option value="PLN">PLN</option>
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Form.Group controlId="formMethod">
+                                    <Form.Label>Method</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={paymentMethod}
+                                        onChange={(e) => setPaymentMethod(e.target.value)}
+                                        readOnly
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="formTitle">
+                                    <Form.Label>Title</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={title}
+                                        onChange={(e) => setTitle(e.target.value)}
+                                        readOnly
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Form.Group controlId="formTrainer">
+                                    <Form.Label>Trainer</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={trainer}
+                                        onChange={(e) => setTrainer(e.target.value)}
+                                        readOnly
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="formMember">
+                                    <Form.Label>Member</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={member}
+                                        onChange={(e) => setMember(e.target.value)}
+                                        readOnly
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
+                                    />
+                                </Form.Group>
+                            </Col>
+
+                        </Row>
+                        <Row>
+                            <Col>
+                                <Form.Group controlId="formDescription">
+                                    <Form.Label>Description</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
+                                        readOnly
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="formStartEvent">
+                                    <Form.Label>Start Event</Form.Label>
+                                    <Form.Control
+                                        type="datetime-local"
+                                        value={startEvent}
+                                        onChange={(e) => setStartEvent(e.target.value)}
+                                        readOnly
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col>
+                                <Form.Group controlId="formEndEvent">
+                                    <Form.Label>End Event</Form.Label>
+                                    <Form.Control
+                                        type="datetime-local"
+                                        value={endEvent}
+                                        onChange={(e) => setEndEvent(e.target.value)}
+                                        readOnly
+                                        style={{backgroundColor: '#f0f0f0', cursor: 'not-allowed'}}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Back
+                    </Button>
+                    <Button variant="primary" onClick={() => payForTraining(price, currency, paymentMethod, title)}>
+                        I am paying
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     );
 }
