@@ -43,6 +43,8 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
     const PAYMENT_METHOD = "paypal";
     const [trainers, setTrainers] = useState([]);
 
+    const [selectedDate, setSelectedDate] = useState(new Date());
+
     const handleShow = (eventData) => {
         setPrice(eventData.calculatedPrice);
         setCurrency(CURRENCY);
@@ -382,7 +384,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             <NavBar isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} onChangeCalendar={() => {
                 setIsMyCalendar(!isMyCalendar);
             }}/>
-            <ScheduleComponent height='850px' selectedDate={new Date(2023, 1, 15)} eventSettings={eventSettings}
+            <ScheduleComponent height='850px' selectedDate={selectedDate.toDateString()} eventSettings={eventSettings}
                                workHours={workHours} ref={scheduleObj} popupClose={onPopupClose} popupOpen={onPopupOpen}
                                editorTemplate={editorTemplate} showQuickInfo={false} actionBegin={onActionBegin}>
                 <Inject services={[Day, Week, WorkWeek, Month, Agenda]}/>
@@ -390,11 +392,15 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             <PaymentSummaryModal
                 show={modalShow}
                 onHide={handleClose}
-                price={price} setPrice={setPrice} currency={currency} setCurrency={setCurrency}
-                paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} title={title} setTitle={setTitle}
-                trainer={trainer} setTrainer={setTrainer} member={member} setMember={setMember}
+                price={price} setPrice={setPrice}
+                currency={currency} setCurrency={setCurrency}
+                paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod}
+                title={title} setTitle={setTitle}
+                trainer={trainer} setTrainer={setTrainer}
+                member={member} setMember={setMember}
                 description={description} setDescription={setDescription}
-                startEvent={startEvent} setStartEvent={setStartEvent} endEvent={endEvent} setEndEvent={setEndEvent}
+                startEvent={startEvent} setStartEvent={setStartEvent}
+                endEvent={endEvent} setEndEvent={setEndEvent}
             />
         </>
     );
