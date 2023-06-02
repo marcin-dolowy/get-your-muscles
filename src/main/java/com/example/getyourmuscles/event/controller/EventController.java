@@ -40,7 +40,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.addEvent(event));
     }
 
-    @GetMapping("/price")
+    @PostMapping("/price")
     public ResponseEntity<BigDecimal> countTrainingPrice(@RequestBody EventSession eventSession) {
         return ResponseEntity.ok(eventService.countTrainingPrice(eventSession));
     }
