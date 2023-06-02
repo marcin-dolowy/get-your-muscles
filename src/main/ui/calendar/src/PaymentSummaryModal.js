@@ -9,7 +9,7 @@ const PaymentSummaryModal = (props) => {
         props.setPrice(props.price);
         props.setCurrency(props.currency);
         props.setPaymentMethod(props.paymentMethod);
-        props.setTitle(props.setTitle);
+        props.setTitle(props.title);
         props.setDescription(props.description);
         props.setTrainer(props.trainer);
         props.setMember(props.member);
