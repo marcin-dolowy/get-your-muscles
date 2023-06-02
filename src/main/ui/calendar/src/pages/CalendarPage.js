@@ -5,8 +5,8 @@ import {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import {Agenda, Day, Inject, Month, ScheduleComponent, Week, WorkWeek} from '@syncfusion/ej2-react-schedule';
 import '../App/App.css';
-import {useNavigate} from "react-router-dom";
 import {toast} from "react-toastify";
+import PaymentSummaryModal from "../PaymentSummaryModal";
 
 L10n.load({
     'en-US': {
@@ -18,34 +18,46 @@ L10n.load({
 });
 
 const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
-    const navigate = useNavigate();
+    //variables necessary to payment
+    const [price, setPrice] = useState("");
+    const [currency, setCurrency] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState("");
+    const [title, setTitle] = useState("");
+
+    //variables to show data about event
+    const [trainer, setTrainer] = useState("");
+    const [member, setMember] = useState("");
+    const [description, setDescription] = useState("");
+    const [startEvent, setStartEvent] = useState("");
+    const [endEvent, setEndEvent] = useState("");
+
+    const [modalShow, setModalShow] = useState(false);
+
     const scheduleObj = useRef(null);
     const calculatedPriceObj = useRef(null);
     const trainerObj = useRef(null);
     const startEventObj = useRef(null);
     const endEventObj = useRef(null);
     const [events, setEvents] = useState([]);
-    const CURRENCY = "zł";
-    const [trainers, setTrainers] = useState([
-        {
-            id: 1,
-            firstName: "Maciek",
-            lastName: "Tak",
-            trainingPrice: 50.00
-        },
-        {
-            id: 2,
-            firstName: "Krzysztof",
-            lastName: "Zdrajca",
-            trainingPrice: 70.00
-        },
-        {
-            id: 3,
-            firstName: "Grzegorz",
-            lastName: "Ciemnobrody",
-            trainingPrice: 33.00
-        }
-    ]);
+    const CURRENCY = "PLN";
+    const PAYMENT_METHOD = "paypal";
+    const [trainers, setTrainers] = useState([]);
+
+    const handleShow = (eventData) => {
+        setPrice(eventData.calculatedPrice);
+        setCurrency(CURRENCY);
+        setPaymentMethod(PAYMENT_METHOD);
+        setTitle(eventData.title);
+
+        setTrainer(eventData.trainer);
+        setMember(localStorage.getItem("loggedUserEmail"));
+        setDescription(eventData.description);
+        setStartEvent(eventData.startEvent);
+        setEndEvent(eventData.endEvent);
+
+        setModalShow(true);
+    };
+    const handleClose = () => setModalShow(false);
 
     const getTrainers = async () => {
         const responseForTrainers = await axios.get("/api/v1/users/all/trainers", {
@@ -61,7 +73,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 id: responseTrainer.id,
                 firstName: responseTrainer.firstName,
                 lastName: responseTrainer.lastName,
-                trainingPrice: responseTrainer.trainingPrice
+                trainingPrice: parseFloat(responseTrainer.trainingPrice).toFixed(2)
             };
             parsedTrainersData.push(parsedTrainer);
         });
@@ -91,7 +103,8 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         responseEventsData.forEach((responseEvent) => {
             let parsedEvent = {
                 Id: responseEvent.id,
-                trainer: responseEvent.trainer.firstName + ' ' + responseEvent.trainer.lastName + " - " + responseEvent.trainer.trainingPrice + CURRENCY,
+                trainer: responseEvent.trainer.firstName + ' ' + responseEvent.trainer.lastName + " - "
+                    + parseFloat(responseEvent.trainer.trainingPrice).toFixed(2),
                 title: responseEvent.title,
                 description: responseEvent.description,
                 startEvent: new Date(responseEvent.startEvent),
@@ -194,13 +207,36 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
     const eventSettings = {dataSource: events, fields: fieldsData};
 
 
-    const onActionBegin = (args) => {
+    const onActionBegin = async (args) => {
         if (args.requestType === 'eventCreate') {
+            console.log(args.data[0])
 
-            //tu po prostu navigate do strony do potwierdzenia płatności
-            // navigate("/paylayout");
+            handleShow(args.data[0]);
+            let parsedEventsData = await getEventsByCalendar();
+
+            setEvents(parsedEventsData);
+
         } else if (args.requestType === 'eventRemove') {
+            args.cancel = true;
+            const eventId = args.data[0].Id;
 
+            axios
+                .delete("api/v1/events/" + eventId, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                .then(async (response) => {
+                    args.cancel = false;
+
+                    let parsedEventsData = await getEventsByCalendar();
+
+                    setEvents(parsedEventsData);
+                })
+                .catch((err) => {
+                    console.log(err)
+                    toast.error(err.response.data);
+                });
 
         } else if (args.requestType === 'eventChange') {
 
@@ -298,7 +334,8 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                                 onChange={calculateTotalPrice} ref={trainerObj}>
                             {trainers.map((trainer) => (
                                 <option key={trainer.id} data-key={trainer.id}>
-                                    {trainer.firstName + " " + trainer.lastName + " - " + trainer.trainingPrice + CURRENCY}
+                                    {trainer.firstName + " " + trainer.lastName + " - " +
+                                        parseFloat(trainer.trainingPrice).toFixed(2)}
                                 </option>
                             ))}
                         </select>
@@ -350,6 +387,15 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                                editorTemplate={editorTemplate} showQuickInfo={false} actionBegin={onActionBegin}>
                 <Inject services={[Day, Week, WorkWeek, Month, Agenda]}/>
             </ScheduleComponent>
+            <PaymentSummaryModal
+                show={modalShow}
+                onHide={handleClose}
+                price={price} setPrice={setPrice} currency={currency} setCurrency={setCurrency}
+                paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod} title={title} setTitle={setTitle}
+                trainer={trainer} setTrainer={setTrainer} member={member} setMember={setMember}
+                description={description} setDescription={setDescription}
+                startEvent={startEvent} setStartEvent={setStartEvent} endEvent={endEvent} setEndEvent={setEndEvent}
+            />
         </>
     );
 }
