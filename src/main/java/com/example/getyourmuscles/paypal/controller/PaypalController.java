@@ -5,6 +5,7 @@ import com.example.getyourmuscles.paypal.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,11 +18,6 @@ public class PaypalController {
 
     public PaypalController(PaypalService service) {
         this.service = service;
-    }
-
-    @GetMapping("/")
-    public String home() {
-        return "home";
     }
 
     @PostMapping("/pay")
@@ -42,7 +38,6 @@ public class PaypalController {
             }
 
         } catch (PayPalRESTException e) {
-
             e.printStackTrace();
         }
         return "failed";
