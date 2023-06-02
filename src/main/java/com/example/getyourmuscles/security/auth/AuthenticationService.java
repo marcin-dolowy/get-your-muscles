@@ -5,16 +5,22 @@ import com.example.getyourmuscles.security.token.Token;
 import com.example.getyourmuscles.security.token.TokenRepository;
 import com.example.getyourmuscles.security.token.TokenType;
 import com.example.getyourmuscles.security.user.exception.EmailAlreadyExistsException;
+import com.example.getyourmuscles.security.user.exception.EmptyFieldException;
+import com.example.getyourmuscles.security.user.exception.InvalidEmailFormatException;
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
 import com.example.getyourmuscles.security.user.model.CustomUserDetails;
 import com.example.getyourmuscles.security.user.model.entity.User;
 import com.example.getyourmuscles.security.user.repository.UserRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,19 +37,15 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request) {
-        User user = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .trainingPrice(request.getTrainingPrice())
-                .role(request.getRole())
-                .build();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email already exists");
-        }
+    public AuthenticationResponse register(RegisterRequest request) {
+
+        validateFieldsNotEmpty(request);
+        validateEmailNotExists(request.getEmail());
+        validateEmailFormat(request.getEmail());
+
+        User user = createUserFromRequest(request);
 
         User savedUser = userRepository.save(user);
         String jwtToken = jwtService.generateToken(new CustomUserDetails(user));
@@ -55,6 +57,40 @@ public class AuthenticationService {
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    private User createUserFromRequest(RegisterRequest request) {
+        return User.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .trainingPrice(request.getTrainingPrice())
+                .role(request.getRole())
+                .build();
+    }
+
+    private boolean isSomeFieldsEmptyOrNull(RegisterRequest request) {
+        Map<String, Object> requestMap = objectMapper.convertValue(request, new TypeReference<>() {});
+        return requestMap.values().stream().anyMatch(value -> value == null || StringUtils.isEmpty(value.toString()));
+    }
+
+    private void validateEmailNotExists(String email) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+    }
+
+    private void validateFieldsNotEmpty(RegisterRequest request) {
+        if (isSomeFieldsEmptyOrNull(request)) {
+            throw new EmptyFieldException("Some fields are empty");
+        }
+    }
+
+    private void validateEmailFormat(String email) {
+        if (!EmailValidator.getInstance().isValid(email)) {
+            throw new InvalidEmailFormatException("Invalid email format. Please provide a valid email address");
+        }
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {

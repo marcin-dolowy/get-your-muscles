@@ -36,6 +36,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     implementation 'org.modelmapper:modelmapper:3.1.1'
+    implementation 'commons-validator:commons-validator:1.7'
 
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
@@ -55,6 +56,7 @@ spotless {
     java {
         target 'src/*/java/**/*.java'
         palantirJavaFormat()
+        removeUnusedImports()
         toggleOffOn()
     }
 }
