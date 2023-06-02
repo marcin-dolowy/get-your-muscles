@@ -10,7 +10,6 @@ const RegisterPage = () => {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
-    const [role, setRole] = useState('');
     const [password, setPassword] = useState('');
     const [repeatPassword, setRepeatPassword] = useState('');
     const navigate = useNavigate();
@@ -28,7 +27,7 @@ const RegisterPage = () => {
         if (password === repeatPassword) {
             axios
                 .post('/api/v1/auth/register', registerData)
-                .then((response) => {
+                .then(() => {
                     toast.error("Successful registration");
                     navigate("/login");
                 })
