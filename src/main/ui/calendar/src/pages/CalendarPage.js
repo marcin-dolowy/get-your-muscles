@@ -443,6 +443,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             description: description
         };
 
+
         axios
             .post("/pay", paymentData, {
                 headers: {
@@ -450,7 +451,12 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 }
             })
             .then((response) => {
-                window.location.replace(response.data)
+                if (response.data.success) {
+                    window.location.replace(response.data.url)
+                }
+                else{
+                    toast.error("Payment failed");
+                }
                 handleClose();
             })
             .catch((err) => {
