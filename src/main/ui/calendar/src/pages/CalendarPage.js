@@ -39,6 +39,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
     const startEventObj = useRef(null);
     const endEventObj = useRef(null);
     const [events, setEvents] = useState([]);
+    const [memberId, setMemberId] = useState(null);
     const CURRENCY = "PLN";
     const PAYMENT_METHOD = "paypal";
     const [trainers, setTrainers] = useState([]);
@@ -92,6 +93,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         });
 
         const responseUserId = responseForUser.data.id;
+        setMemberId(responseUserId);
 
         return await axios.get("api/v1/events/member/" + responseUserId, {
             headers: {
@@ -211,10 +213,41 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
 
     const onActionBegin = async (args) => {
         if (args.requestType === 'eventCreate') {
-            console.log(args.data[0])
-
+            args.cancel = true;
             handleShow(args.data[0]);
 
+            //to tylko tak na razie, trzeba będzie to usunąć, bo tworzenie będzie dopiero jak payment będzie success
+            const newEvent = {
+                title: args.data[0].title,
+                description: args.data[0].description,
+                startEvent: formatDate(args.data[0].startEvent, false),
+                endEvent: formatDate(args.data[0].endEvent, false),
+                member: {
+                    id: memberId
+                },
+                trainer: {
+                    id: args.data[0].trainerId
+                }
+            }
+
+            axios
+                .post("api/v1/events/add", newEvent, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                .then(async (response) => {
+                    args.cancel = false;
+
+                    let parsedEventsData = await getEventsByCalendar();
+
+                    setEvents(parsedEventsData);
+                })
+                .catch((err) => {
+                    console.log(err)
+                    toast.error(err.response.data);
+                });
+            // do tego miejsca
 
         } else if (args.requestType === 'eventRemove') {
             args.cancel = true;
@@ -239,7 +272,31 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 });
 
         } else if (args.requestType === 'eventChange') {
+            args.cancel = true;
+            const eventId = args.data.Id;
 
+            const editedEvent = {
+                title: args.data.title,
+                description: args.data.description
+            }
+
+            axios
+                .patch("api/v1/events/update/" + eventId, editedEvent, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                })
+                .then(async (response) => {
+                    args.cancel = false;
+
+                    let parsedEventsData = await getEventsByCalendar();
+
+                    setEvents(parsedEventsData);
+                })
+                .catch((err) => {
+                    console.log(err)
+                    toast.error(err.response.data);
+                });
 
         }
     }
@@ -318,7 +375,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         // console.log(props, "props - editorTemplate")
         // console.log(trainers, "trainers")
         // console.log(scheduleObj.current.getEvents(), "scheduleObj.current.getEvents() - editorTemplate");
-        // console.log(events, "events - editorTemplate")
+        console.log(events, "events - editorTemplate")
 
         return (
             props !== undefined ?
