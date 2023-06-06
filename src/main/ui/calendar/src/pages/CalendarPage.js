@@ -5,14 +5,15 @@ import {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import {Agenda, Day, Inject, Month, ScheduleComponent, Week, WorkWeek} from '@syncfusion/ej2-react-schedule';
 import '../App/App.css';
-import {toast} from "react-toastify";
+import {toast, ToastContainer} from "react-toastify";
 import {Button, Col, Form, Modal, Row} from "react-bootstrap";
 
 L10n.load({
     'en-US': {
         'schedule': {
             'saveButton': 'Pay',
-            'cancelButton': 'Close'
+            'cancelButton': 'Close',
+            'deleteButton': 'Cancel Event'
         },
     }
 });
@@ -32,6 +33,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
     const [endEvent, setEndEvent] = useState("");
 
     const [modalShow, setModalShow] = useState(false);
+    const [deleteModalShow, setDeleteModalShow] = useState(false);
 
     const scheduleObj = useRef(null);
     const calculatedPriceObj = useRef(null);
@@ -47,6 +49,13 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
 
     const handleShow = (eventData) => {
+        const regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+        const isStartEventValid = regex.test(eventData.startEvent);
+        const isEndEventValid = regex.test(eventData.endEvent);
+        if (!isStartEventValid  || !isEndEventValid) {
+            toast.error("Incorrect Date");
+            return;
+        }
         setPrice(eventData.calculatedPrice);
         setCurrency(CURRENCY);
         setPaymentMethod(PAYMENT_METHOD);
@@ -61,6 +70,28 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         setModalShow(true);
     };
     const handleClose = () => setModalShow(false);
+    const handleDeleteConfirmationClose = () => {
+        const eventId = scheduleObj.current.activeEventData.event.Id;
+
+        axios
+            .delete("api/v1/events/" + eventId, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+            .then(async (response) => {
+                scheduleObj.current.deleteEvent(eventId);
+                let parsedEventsData = await getEventsByCalendar();
+
+                setEvents(parsedEventsData);
+            })
+            .catch((err) => {
+                console.log(err)
+                toast.error(err.message);
+            });
+
+        setDeleteModalShow(false);
+    }
 
     const getTrainers = async () => {
         const responseForTrainers = await axios.get("/api/v1/users/all/trainers", {
@@ -151,7 +182,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
 
             } catch (err) {
                 console.log(err)
-                toast.error(err.response.data);
+                toast.error(err.message);
             }
         };
         loadData();
@@ -176,7 +207,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             })
             .catch((err) => {
                 console.log(err)
-                toast.error(err.response.data);
+                toast.error(err.message);
             });
     }
 
@@ -245,31 +276,12 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 })
                 .catch((err) => {
                     console.log(err)
-                    toast.error(err.response.data);
+                    toast.error(err.message);
                 });
             // do tego miejsca
 
         } else if (args.requestType === 'eventRemove') {
             args.cancel = true;
-            const eventId = args.data[0].Id;
-
-            axios
-                .delete("api/v1/events/" + eventId, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                })
-                .then(async (response) => {
-                    args.cancel = false;
-
-                    let parsedEventsData = await getEventsByCalendar();
-
-                    setEvents(parsedEventsData);
-                })
-                .catch((err) => {
-                    console.log(err)
-                    toast.error(err.response.data);
-                });
 
         } else if (args.requestType === 'eventChange') {
             args.cancel = true;
@@ -295,60 +307,72 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 })
                 .catch((err) => {
                     console.log(err)
-                    toast.error(err.response.data);
+                    toast.error(err.message);
                 });
 
         }
     }
 
+    const changePayButtonName = (text) => {
+        const payButton = document.querySelector(
+            "div.e-footer-content > button.e-schedule-dialog.e-control.e-btn.e-lib.e-primary.e-event-save.e-flat")
+        payButton.innerHTML = text;
+    }
+
     const onPopupOpen = async (args) => {
-        console.log(args, "args - onPopupOpen")
-        if (args.type === 'Editor') {
+        console.log(args, "args - onPopupOpen");
 
-            const trainerId = trainerObj.current.options[trainerObj.current.selectedIndex]?.getAttribute("data-key");
-            const orderData = {
-                id: parseInt(trainerId),
-                startEvent: formatDate(args.data.startEvent, false),
-                endEvent: formatDate(args.data.endEvent, false)
-            };
+        if (args.type === 'DeleteAlert') {
+            // setTimeout(() => {
+            //     // change the text in delete confirmation dialog (modal)
+            //     const deleteConfirmationDialogContent = document.querySelector("#QuickDialog_dialog-content");
+            //     deleteConfirmationDialogContent.value = "Do you really want to cancel the event? You will not get a refund.";
+            //     const deleteButtonConfirmationDialog = document.querySelector("#QuickDialog > div.e-footer-content > button.e-quick-dialog.e-control.e-btn.e-lib.e-quick-alertok.e-flat.e-primary.e-quick-dialog-delete");
+            //     // deleteButtonConfirmationDialog.ariaLabel = "Cancel";
+            //     const cancelButtonConfirmationDialog = document.querySelector("#QuickDialog > div.e-footer-content > button.e-quick-dialog.e-control.e-btn.e-lib.e-quick-alertcancel.e-flat.e-quick-dialog-cancel");
+            //     // cancelButtonConfirmationDialog.ariaLabel = "Close";
+            //     // console.log(document.querySelector("#QuickDialog_title"));
+            //     console.log(deleteConfirmationDialogContent, "deleteConfirmationDialog")
+            // }, 5000);
+            args.cancel = true;
+            setDeleteModalShow(true);
+            console.log("aaaaaaaaaaaaaaaa")
 
-            axios
-                .post("api/v1/events/price", orderData, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    },
-                })
-                .then((response) => {
-                    const calculatedPrice = response.data;
+        } else if (args.type === 'Editor') {
 
-                    setTimeout(() => {
-                        let trainerIdInputElement = args.element.querySelector('#trainerIdInput');
-                        if (trainerIdInputElement) {
-                            trainerIdInputElement.value = args.data.trainerId || "";
-                        }
-                        let titleInputElement = args.element.querySelector('#titleInput');
-                        if (titleInputElement) {
-                            titleInputElement.value = args.data.title || "";
-                        }
-                        let trainerSelectElement = args.element.querySelector('#trainerSelect');
-                        if (trainerSelectElement) {
-                            trainerSelectElement.value = args.data.trainer || trainerSelectElement[0]?.value;
-                        }
-                        let descriptionTextAreaElement = args.element.querySelector('#descriptionTextArea');
-                        if (descriptionTextAreaElement) {
-                            descriptionTextAreaElement.value = args.data.description || "";
-                        }
-                        let calculatedPriceInputElement = args.element.querySelector('#calculatedPriceInput');
-                        if (calculatedPriceInputElement) {
-                            calculatedPriceInputElement.value = calculatedPrice;
-                        }
-                    }, 10);
+            setTimeout(() => {
+                let trainerIdInputElement = args.element.querySelector('#trainerIdInput');
+                if (trainerIdInputElement) {
+                    trainerIdInputElement.value = args.data.trainerId || "";
+                }
+                let titleInputElement = args.element.querySelector('#titleInput');
+                if (titleInputElement) {
+                    titleInputElement.value = args.data.title || "";
+                }
+                let trainerSelectElement = args.element.querySelector('#trainerSelect');
+                if (trainerSelectElement) {
+                    trainerSelectElement.value = args.data.trainer || trainerSelectElement[0]?.value;
+                }
+                let descriptionTextAreaElement = args.element.querySelector('#descriptionTextArea');
+                if (descriptionTextAreaElement) {
+                    descriptionTextAreaElement.value = args.data.description || "";
+                }
+                calculateTotalPrice();
 
-                })
-                .catch((err) => {
-                    console.log(err)
-                    toast.error(err.response.data);
-                });
+                //to set disabled on trainer select and date need to check length of data passed to this function
+                if (Object.keys(args.data).length > 4) {
+                    trainerSelectElement.setAttribute("disabled", "true");
+                    let startEventInputElement = args.element.querySelector('#startEventInput');
+                    if (startEventInputElement) {
+                        startEventInputElement.setAttribute("disabled", "true");
+                    }
+                    let endEventInputElement = args.element.querySelector('#endEventInput');
+                    if (endEventInputElement) {
+                        endEventInputElement.setAttribute("disabled", "true");
+                    }
+                    changePayButtonName("Modify")
+                }
+            }, 10);
         }
     }
 
@@ -375,11 +399,12 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         // console.log(props, "props - editorTemplate")
         // console.log(trainers, "trainers")
         // console.log(scheduleObj.current.getEvents(), "scheduleObj.current.getEvents() - editorTemplate");
-        console.log(events, "events - editorTemplate")
+        console.log(events, "events - editorTemplate");
+        changePayButtonName("Pay");
 
         return (
             props !== undefined ?
-                <div className="toJestDiv">
+                <div>
                     <input id="trainerIdInput" type="text" className="e-field" data-name="trainerId" disabled hidden/>
                     <div className="mb-1">
                         <label className="col-form-label">Title</label>
@@ -403,7 +428,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                                 <label className="col-form-label">From</label>
                                 <input id="startEventInput" className="e-field form-control" type="datetime-local"
                                        data-name="startEvent" onChange={calculateTotalPrice} ref={startEventObj}
-                                       defaultValue={formatDate(props.startEvent, true) || null}/>
+                                       defaultValue={formatDate(props.startEvent, true)}/>
                             </div>
                         </div>
                         <div className="col-md">
@@ -411,7 +436,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                                 <label className="col-form-label">To</label>
                                 <input id="endEventInput" className="e-field form-control" type="datetime-local"
                                        data-name="endEvent" onChange={calculateTotalPrice} ref={endEventObj}
-                                       defaultValue={formatDate(props.endEvent, true) || null}/>
+                                       defaultValue={formatDate(props.endEvent, true)}/>
                             </div>
                         </div>
                     </div>
@@ -443,7 +468,6 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             description: description
         };
 
-
         axios
             .post("/pay", paymentData, {
                 headers: {
@@ -451,17 +475,12 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 }
             })
             .then((response) => {
-                if (response.data.success) {
-                    window.location.replace(response.data.url)
-                }
-                else{
-                    toast.error("Payment failed");
-                }
+                window.location.replace(response.data)
                 handleClose();
             })
             .catch((err) => {
                 console.log(err);
-                toast.error(err.response.data);
+                toast.error(err.message);
             });
     };
 
@@ -475,7 +494,33 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                                editorTemplate={editorTemplate} showQuickInfo={false} actionBegin={onActionBegin}>
                 <Inject services={[Day, Week, WorkWeek, Month, Agenda]}/>
             </ScheduleComponent>
+                <Modal
+                    contentClassName="rounded-0"
+                    show={deleteModalShow}
+                    onHide={() => setDeleteModalShow(false)}
+                    keyboard={false}
+                    centered
+                    size="sm"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>
+                            Cancel Event
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        Do you really want to cancel the event?<br/><b>You will not get a refund.</b>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button className="e-schedule-dialog e-control e-btn e-lib e-primary e-event-save e-flat" onClick={handleDeleteConfirmationClose}>
+                            Yes
+                        </Button>
+                        <Button className="e-schedule-dialog e-control e-btn e-lib e-event-cancel e-flat" onClick={() => setDeleteModalShow(false)}>
+                            No
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             <Modal
+                contentClassName="rounded-0"
                 show={modalShow}
                 onHide={handleClose}
                 size="lg"
@@ -612,14 +657,15 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
-                        Back
-                    </Button>
-                    <Button variant="primary" onClick={() => payForTraining(price, currency, paymentMethod, title)}>
+                    <Button className="e-schedule-dialog e-control e-btn e-lib e-primary e-event-save e-flat" onClick={() => payForTraining(price, currency, paymentMethod, title)}>
                         I am paying
+                    </Button>
+                    <Button className="e-schedule-dialog e-control e-btn e-lib e-event-cancel e-flat" onClick={handleClose}>
+                        Cancel
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar/>
         </>
     );
 }
