@@ -11,23 +11,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<String> handleEmailAlreadyExistsException(EmailAlreadyExistsException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
-
-    @ExceptionHandler(InvalidEmailFormatException.class)
-    public ResponseEntity<String> handleEventNotFoundException(InvalidEmailFormatException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
-
-    @ExceptionHandler(EmptyFieldException.class)
-    public ResponseEntity<String> handleEventNotFoundException(EmptyFieldException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
-
-    @ExceptionHandler(EventNotFoundException.class)
-    public ResponseEntity<String> handleEventNotFoundException(EventNotFoundException e) {
+    @ExceptionHandler({
+        EmailAlreadyExistsException.class,
+        InvalidEmailFormatException.class,
+        EmptyFieldException.class,
+        EventNotFoundException.class,
+    })
+    public ResponseEntity<String> handleEmailAlreadyExistsException(RuntimeException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
 }
