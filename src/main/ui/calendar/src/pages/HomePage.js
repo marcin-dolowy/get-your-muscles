@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import {Link} from "react-router-dom";
+import {ToastContainer} from "react-toastify";
 
 const HomePage = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,6 +50,7 @@ const HomePage = () => {
                     </div>
                 </div>
             </div>
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar/>
         </>
 
     );
