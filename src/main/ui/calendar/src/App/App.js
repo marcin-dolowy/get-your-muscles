@@ -8,7 +8,6 @@ import { registerLicense } from '@syncfusion/ej2-base';
 import {useState} from "react";
 import RegisterPage from "../pages/RegisterPage";
 import HomePage from "../pages/HomePage";
-import PaymentPage from "../pages/PaymentPage";
 
 
 function App() {
@@ -22,7 +21,6 @@ function App() {
                     <Route path="/login" element={<LoginPage />}/>
                     <Route path="/register" element={<RegisterPage />} />
                     <Route path="/calendar" element={<CalendarPage isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} />}/>
-                    <Route path="/payment" element={<PaymentPage />}/>
                     <Route path="*" element={<NotFoundPage isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} />} />
                 </Routes>
             </BrowserRouter>
