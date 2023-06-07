@@ -45,6 +45,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
     const CURRENCY = "PLN";
     const PAYMENT_METHOD = "paypal";
     const [trainers, setTrainers] = useState([]);
+    let [newEvent, setNewEvent] = useState("");
 
     const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -251,8 +252,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             args.cancel = true;
             handleShow(args.data[0]);
 
-            //to tylko tak na razie, trzeba będzie to usunąć, bo tworzenie będzie dopiero jak payment będzie success
-            const newEvent = {
+            newEvent = {
                 title: args.data[0].title,
                 description: args.data[0].description,
                 startEvent: formatDate(args.data[0].startEvent, false),
@@ -264,25 +264,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                     id: args.data[0].trainerId
                 }
             }
-
-            axios
-                .post("api/v1/events/add", newEvent, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                })
-                .then(async (response) => {
-                    args.cancel = false;
-
-                    let parsedEventsData = await getEventsByCalendar();
-
-                    setEvents(parsedEventsData);
-                })
-                .catch((err) => {
-                    console.log(err)
-                    toast.error(err.message);
-                });
-            // do tego miejsca
+            setNewEvent(newEvent);
 
         } else if (args.requestType === 'eventRemove') {
             args.cancel = true;
@@ -496,11 +478,11 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
 
     const payForTraining = (price, currency, paymentMethod, description) => {
         const paymentData = {
+            event: newEvent,
             price: price,
             currency: currency,
             method: paymentMethod,
             intent: "sale",
-            description: description
         };
 
         axios
