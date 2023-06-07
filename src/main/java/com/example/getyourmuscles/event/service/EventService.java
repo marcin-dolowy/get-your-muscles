@@ -5,7 +5,7 @@ import com.example.getyourmuscles.event.exception.UnauthorizedOperationException
 import com.example.getyourmuscles.event.model.Event;
 import com.example.getyourmuscles.event.model.EventSession;
 import com.example.getyourmuscles.event.repository.EventRepository;
-import com.example.getyourmuscles.security.auth.facade.IAuthenticationFacade;
+import com.example.getyourmuscles.security.auth.facade.AuthenticationFacade;
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
 import com.example.getyourmuscles.security.user.model.entity.User;
 import com.example.getyourmuscles.security.user.repository.UserRepository;
@@ -27,7 +27,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
-    private final IAuthenticationFacade authenticationFacade;
+    private final AuthenticationFacade authenticationFacade;
 
     public Event findById(Long id) {
         log.info("Finding event by ID: {}", id);
