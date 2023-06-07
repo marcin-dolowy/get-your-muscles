@@ -1,4 +1,4 @@
-package com.example.getyourmuscles.security.auth;
+package com.example.getyourmuscles.security.auth.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

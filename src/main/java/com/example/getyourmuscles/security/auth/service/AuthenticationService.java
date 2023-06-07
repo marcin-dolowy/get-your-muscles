@@ -1,5 +1,8 @@
-package com.example.getyourmuscles.security.auth;
+package com.example.getyourmuscles.security.auth.service;
 
+import com.example.getyourmuscles.security.auth.model.AuthenticationRequest;
+import com.example.getyourmuscles.security.auth.model.AuthenticationResponse;
+import com.example.getyourmuscles.security.auth.model.RegisterRequest;
 import com.example.getyourmuscles.security.config.jwt.JwtService;
 import com.example.getyourmuscles.security.token.Token;
 import com.example.getyourmuscles.security.token.TokenRepository;
@@ -19,7 +22,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthenticationService {
 
@@ -72,10 +78,22 @@ public class AuthenticationService {
 
     private boolean isSomeFieldsEmptyOrNull(RegisterRequest request) {
         Map<String, Object> requestMap = objectMapper.convertValue(request, new TypeReference<>() {});
+
+        Predicate<Object> isNullOrEmpty =
+                value -> value == null || String.valueOf(value).isEmpty();
+
+        List<String> emptyFields = requestMap.entrySet().stream()
+                .filter(entry -> isNullOrEmpty.test(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .toList();
+
+        log.warn("Empty fields found in the register form. List of empty values: {}", emptyFields);
+
         return requestMap.values().stream().anyMatch(value -> value == null || StringUtils.isEmpty(value.toString()));
     }
 
     private void validateEmailNotExists(String email) {
+        log.warn("Email: ({}) already exists", email);
         if (userRepository.findByEmail(email).isPresent()) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
@@ -88,6 +106,7 @@ public class AuthenticationService {
     }
 
     private void validateEmailFormat(String email) {
+        log.warn("Invalid email format for: {}", email);
         if (!EmailValidator.getInstance().isValid(email)) {
             throw new InvalidEmailFormatException("Invalid email format. Please provide a valid email address");
         }

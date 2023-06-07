@@ -1,9 +1,11 @@
 package com.example.getyourmuscles.event.service;
 
 import com.example.getyourmuscles.event.exception.EventNotFoundException;
+import com.example.getyourmuscles.event.exception.UnauthorizedOperationException;
 import com.example.getyourmuscles.event.model.Event;
 import com.example.getyourmuscles.event.model.EventSession;
 import com.example.getyourmuscles.event.repository.EventRepository;
+import com.example.getyourmuscles.security.auth.facade.AuthenticationFacade;
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
 import com.example.getyourmuscles.security.user.model.entity.User;
 import com.example.getyourmuscles.security.user.repository.UserRepository;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+    private final AuthenticationFacade authenticationFacade;
 
     public Event findById(Long id) {
         log.info("Finding event by ID: {}", id);
@@ -35,7 +39,7 @@ public class EventService {
     }
 
     public Long findLastEventId() {
-        log.info("Finding ID for last event");
+        log.info("Searching for an event with a recent ID");
         return eventRepository
                 .findFirstByOrderByIdDesc()
                 .orElseThrow(() -> {
@@ -46,13 +50,23 @@ public class EventService {
     }
 
     public List<Event> findAll() {
+        List<Event> events = eventRepository.findAll();
+        if (CollectionUtils.isEmpty(events)) {
+            log.warn("Events not found");
+            throw new EventNotFoundException("There are no events in the calendar");
+        }
         log.info("Finding all events");
-        return eventRepository.findAll();
+        return events;
     }
 
     public List<Event> findEventsByMemberId(Long id) {
-        log.info("Finding event by member ID: {}", id);
-        return eventRepository.findEventsByMemberId(id);
+        List<Event> memberEvents = eventRepository.findEventsByMemberId(id);
+        log.info("Finding events by member ID: {}", id);
+        if (CollectionUtils.isEmpty(memberEvents)) {
+            log.warn("Events for user with ID: {} not found", id);
+            throw new EventNotFoundException("You have no upcoming events");
+        }
+        return memberEvents;
     }
 
     public BigDecimal countTrainingPrice(EventSession eventSession) {
@@ -86,19 +100,49 @@ public class EventService {
     }
 
     public void deleteById(Long id) {
-        log.info("Deleting event by ID: {}", id);
-        eventRepository.deleteById(id);
+        Event existingEvent = getExistingEvent(id);
+
+        String authenticatedUserEmail = authenticationFacade.getAuthentication().getName();
+        String eventOwnerEmail = existingEvent.getMember().getEmail();
+
+        if (authenticatedUserEmail.equals(eventOwnerEmail)) {
+            log.info("Deleting event by ID: {}", id);
+            eventRepository.deleteById(id);
+        } else {
+            log.warn(
+                    "The owner of the event is a user with email: {}. Attempted event deletion by user with email: {}",
+                    eventOwnerEmail,
+                    authenticatedUserEmail);
+            throw new UnauthorizedOperationException(
+                    "You are not the owner of this event. You do not have permission to delete it.");
+        }
     }
 
     @SneakyThrows
     public Event updateEvent(Long id, String updatedEvent) {
-        Event existingEvent = eventRepository.findById(id).orElseThrow(() -> {
+        Event existingEvent = getExistingEvent(id);
+
+        String authenticatedUserEmail = authenticationFacade.getAuthentication().getName();
+        String eventOwnerEmail = existingEvent.getMember().getEmail();
+
+        if (authenticatedUserEmail.equals(eventOwnerEmail)) {
+            objectMapper.readerForUpdating(existingEvent).readValue(updatedEvent);
+            log.info("Updating event with ID: {}", id);
+            return eventRepository.save(existingEvent);
+        } else {
+            log.warn(
+                    "The owner of the event is a user with email: {}. Attempted event modification by user with email: {}",
+                    eventOwnerEmail,
+                    authenticatedUserEmail);
+            throw new UnauthorizedOperationException(
+                    "You are not the owner of this event. You do not have permission to update it.");
+        }
+    }
+
+    private Event getExistingEvent(Long id) {
+        return eventRepository.findById(id).orElseThrow(() -> {
             log.warn("Event not found with ID: {}", id);
             return new EventNotFoundException("Event not found with id: " + id);
         });
-
-        objectMapper.readerForUpdating(existingEvent).readValue(updatedEvent);
-        log.info("Updating event with ID: {}", id);
-        return eventRepository.save(existingEvent);
     }
 }
