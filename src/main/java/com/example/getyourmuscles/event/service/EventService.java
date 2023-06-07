@@ -89,16 +89,27 @@ public class EventService {
     }
 
     public void deleteById(Long id) {
-        log.info("Deleting event by ID: {}", id);
-        eventRepository.deleteById(id);
+        Event existingEvent = getExistingEvent(id);
+
+        String authenticatedUserEmail = authenticationFacade.getAuthentication().getName();
+        String eventOwnerEmail = existingEvent.getMember().getEmail();
+
+        if (authenticatedUserEmail.equals(eventOwnerEmail)) {
+            log.info("Deleting event by ID: {}", id);
+            eventRepository.deleteById(id);
+        } else {
+            log.warn(
+                    "The owner of the event is a user with email: {}. Attempted event deletion by user with email: {}",
+                    eventOwnerEmail,
+                    authenticatedUserEmail);
+            throw new UnauthorizedOperationException(
+                    "You are not the owner of this event. You do not have permission to delete it.");
+        }
     }
 
     @SneakyThrows
     public Event updateEvent(Long id, String updatedEvent) {
-        Event existingEvent = eventRepository.findById(id).orElseThrow(() -> {
-            log.warn("Event not found with ID: {}", id);
-            return new EventNotFoundException("Event not found with id: " + id);
-        });
+        Event existingEvent = getExistingEvent(id);
 
         String authenticatedUserEmail = authenticationFacade.getAuthentication().getName();
         String eventOwnerEmail = existingEvent.getMember().getEmail();
@@ -115,5 +126,12 @@ public class EventService {
             throw new UnauthorizedOperationException(
                     "You are not the owner of this event. You do not have permission to update it.");
         }
+    }
+
+    private Event getExistingEvent(Long id) {
+        return eventRepository.findById(id).orElseThrow(() -> {
+            log.warn("Event not found with ID: {}", id);
+            return new EventNotFoundException("Event not found with id: " + id);
+        });
     }
 }
