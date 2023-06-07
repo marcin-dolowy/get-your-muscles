@@ -1,24 +1,25 @@
 package com.example.getyourmuscles.paypal.controller;
 
+import com.example.getyourmuscles.event.model.Event;
+import com.example.getyourmuscles.event.service.EventService;
 import com.example.getyourmuscles.paypal.model.Order;
 import com.example.getyourmuscles.paypal.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
-import org.springframework.http.HttpHeaders;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
+@RequiredArgsConstructor
 public class PaypalController {
 
-    final PaypalService service;
+    private final PaypalService service;
+    private final EventService eventService;
+    public final String RETURN_URL = "http://localhost:3000/calendar";
 
-    public static final String SUCCESS_URL = "pay/success";
-    public static final String CANCEL_URL = "pay/cancel";
-
-    public PaypalController(PaypalService service) {
-        this.service = service;
-    }
+    private Event event;
 
     @PostMapping("/pay")
     public String payment(@RequestBody Order order) {
@@ -28,39 +29,39 @@ public class PaypalController {
                     order.getCurrency(),
                     order.getMethod(),
                     order.getIntent(),
-                    order.getDescription(),
-                    "http://localhost:8080/" + CANCEL_URL,
-                    "http://localhost:8080/" + SUCCESS_URL);
+                    order.getEvent().getTitle(),
+                    "http://localhost:8080/pay/cancel",
+                    "http://localhost:8080/pay/success");
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
+                    this.event = order.getEvent();
                     return link.getHref();
                 }
             }
-
         } catch (PayPalRESTException e) {
             e.printStackTrace();
         }
         return "failed";
     }
 
-    @GetMapping(value = CANCEL_URL)
-    public String cancelPay() {
-        return "cancel";
+    @GetMapping("/pay/cancel")
+    public RedirectView cancelPay() {
+        return new RedirectView(RETURN_URL);
     }
 
-    @GetMapping(value = SUCCESS_URL)
-    public String successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId) {
+    @GetMapping("/pay/success")
+    public RedirectView successPay(
+            @RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId) {
         try {
             Payment payment = service.executePayment(paymentId, payerId);
             System.out.println(payment.toJSON());
             if (payment.getState().equals("approved")) {
-                return "success";
-                // return ResponseEntity.status(200).build();
+                eventService.addEvent(event);
+                return new RedirectView(RETURN_URL);
             }
         } catch (PayPalRESTException e) {
             System.out.println(e.getMessage());
         }
-        return "failed";
-        // return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+        return new RedirectView(RETURN_URL);
     }
 }
