@@ -1,5 +1,8 @@
-package com.example.getyourmuscles.security.auth;
+package com.example.getyourmuscles.security.auth.service;
 
+import com.example.getyourmuscles.security.auth.model.AuthenticationRequest;
+import com.example.getyourmuscles.security.auth.model.AuthenticationResponse;
+import com.example.getyourmuscles.security.auth.model.RegisterRequest;
 import com.example.getyourmuscles.security.config.jwt.JwtService;
 import com.example.getyourmuscles.security.token.Token;
 import com.example.getyourmuscles.security.token.TokenRepository;

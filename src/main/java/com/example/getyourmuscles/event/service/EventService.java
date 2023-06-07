@@ -1,9 +1,11 @@
 package com.example.getyourmuscles.event.service;
 
 import com.example.getyourmuscles.event.exception.EventNotFoundException;
+import com.example.getyourmuscles.event.exception.UnauthorizedOperationException;
 import com.example.getyourmuscles.event.model.Event;
 import com.example.getyourmuscles.event.model.EventSession;
 import com.example.getyourmuscles.event.repository.EventRepository;
+import com.example.getyourmuscles.security.auth.facade.IAuthenticationFacade;
 import com.example.getyourmuscles.security.user.exception.UserNotFoundException;
 import com.example.getyourmuscles.security.user.model.entity.User;
 import com.example.getyourmuscles.security.user.repository.UserRepository;
@@ -25,6 +27,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+    private final IAuthenticationFacade authenticationFacade;
 
     public Event findById(Long id) {
         log.info("Finding event by ID: {}", id);
@@ -97,8 +100,20 @@ public class EventService {
             return new EventNotFoundException("Event not found with id: " + id);
         });
 
-        objectMapper.readerForUpdating(existingEvent).readValue(updatedEvent);
-        log.info("Updating event with ID: {}", id);
-        return eventRepository.save(existingEvent);
+        String authenticatedUserEmail = authenticationFacade.getAuthentication().getName();
+        String eventOwnerEmail = existingEvent.getMember().getEmail();
+
+        if (authenticatedUserEmail.equals(eventOwnerEmail)) {
+            objectMapper.readerForUpdating(existingEvent).readValue(updatedEvent);
+            log.info("Updating event with ID: {}", id);
+            return eventRepository.save(existingEvent);
+        } else {
+            log.warn(
+                    "The owner of the event is a user with email: {}. Attempted event modification by user with email: {}",
+                    eventOwnerEmail,
+                    authenticatedUserEmail);
+            throw new UnauthorizedOperationException(
+                    "You are not the owner of this event. You do not have permission to update it.");
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.getyourmuscles.security.auth;
+package com.example.getyourmuscles.security.auth.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

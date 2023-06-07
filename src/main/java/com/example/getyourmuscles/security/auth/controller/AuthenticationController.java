@@ -1,5 +1,9 @@
-package com.example.getyourmuscles.security.auth;
+package com.example.getyourmuscles.security.auth.controller;
 
+import com.example.getyourmuscles.security.auth.model.AuthenticationRequest;
+import com.example.getyourmuscles.security.auth.model.AuthenticationResponse;
+import com.example.getyourmuscles.security.auth.model.RegisterRequest;
+import com.example.getyourmuscles.security.auth.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
