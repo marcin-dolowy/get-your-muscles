@@ -52,7 +52,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         const regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
         const isStartEventValid = regex.test(eventData.startEvent);
         const isEndEventValid = regex.test(eventData.endEvent);
-        if (!isStartEventValid  || !isEndEventValid) {
+        if (!isStartEventValid || !isEndEventValid) {
             toast.error("Incorrect Date");
             return;
         }
@@ -69,8 +69,10 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
 
         setModalShow(true);
     };
+
     const handleClose = () => setModalShow(false);
-    const handleDeleteConfirmationClose = () => {
+
+    const handleDeleteConfirmationApply = () => {
         const eventId = scheduleObj.current.activeEventData.event.Id;
 
         axios
@@ -144,7 +146,8 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 description: responseEvent.description,
                 startEvent: new Date(responseEvent.startEvent),
                 endEvent: new Date(responseEvent.endEvent),
-                trainerId: parseInt(responseEvent.trainer.id)
+                trainerId: parseInt(responseEvent.trainer.id),
+                eventMemberId: responseEvent.member.id
             };
             parsedEventsData.push(parsedEvent);
         });
@@ -237,7 +240,8 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         description: {name: 'description'},
         startTime: {name: 'startEvent'},
         endTime: {name: 'endEvent'},
-        trainerId: {name: 'trainerId'}
+        trainerId: {name: 'trainerId'},
+        eventMemberId: {name: 'eventMemberId'}
     }
     const eventSettings = {dataSource: events, fields: fieldsData};
 
@@ -285,31 +289,33 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
 
         } else if (args.requestType === 'eventChange') {
             args.cancel = true;
-            const eventId = args.data.Id;
 
-            const editedEvent = {
-                title: args.data.title,
-                description: args.data.description
+            if (memberId === args.data.eventMemberId) {
+                const eventId = args.data.Id;
+
+                const editedEvent = {
+                    title: args.data.title,
+                    description: args.data.description
+                }
+
+                axios
+                    .patch("api/v1/events/update/" + eventId, editedEvent, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`
+                        }
+                    })
+                    .then(async (response) => {
+                        args.cancel = false;
+
+                        let parsedEventsData = await getEventsByCalendar();
+
+                        setEvents(parsedEventsData);
+                    })
+                    .catch((err) => {
+                        console.log(err)
+                        toast.error(err.message);
+                    });
             }
-
-            axios
-                .patch("api/v1/events/update/" + eventId, editedEvent, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                })
-                .then(async (response) => {
-                    args.cancel = false;
-
-                    let parsedEventsData = await getEventsByCalendar();
-
-                    setEvents(parsedEventsData);
-                })
-                .catch((err) => {
-                    console.log(err)
-                    toast.error(err.message);
-                });
-
         }
     }
 
@@ -319,25 +325,19 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         payButton.innerHTML = text;
     }
 
+    function eventExists(args) {
+        return Object.keys(args.data).length > 4;
+    }
+
     const onPopupOpen = async (args) => {
         console.log(args, "args - onPopupOpen");
 
         if (args.type === 'DeleteAlert') {
-            // setTimeout(() => {
-            //     // change the text in delete confirmation dialog (modal)
-            //     const deleteConfirmationDialogContent = document.querySelector("#QuickDialog_dialog-content");
-            //     deleteConfirmationDialogContent.value = "Do you really want to cancel the event? You will not get a refund.";
-            //     const deleteButtonConfirmationDialog = document.querySelector("#QuickDialog > div.e-footer-content > button.e-quick-dialog.e-control.e-btn.e-lib.e-quick-alertok.e-flat.e-primary.e-quick-dialog-delete");
-            //     // deleteButtonConfirmationDialog.ariaLabel = "Cancel";
-            //     const cancelButtonConfirmationDialog = document.querySelector("#QuickDialog > div.e-footer-content > button.e-quick-dialog.e-control.e-btn.e-lib.e-quick-alertcancel.e-flat.e-quick-dialog-cancel");
-            //     // cancelButtonConfirmationDialog.ariaLabel = "Close";
-            //     // console.log(document.querySelector("#QuickDialog_title"));
-            //     console.log(deleteConfirmationDialogContent, "deleteConfirmationDialog")
-            // }, 5000);
             args.cancel = true;
-            setDeleteModalShow(true);
-            console.log("aaaaaaaaaaaaaaaa")
 
+            if (memberId === args.data.eventMemberId) {
+                setDeleteModalShow(true);
+            }
         } else if (args.type === 'Editor') {
 
             setTimeout(() => {
@@ -360,7 +360,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 calculateTotalPrice();
 
                 //to set disabled on trainer select and date need to check length of data passed to this function
-                if (Object.keys(args.data).length > 4) {
+                if (eventExists(args)) {
                     trainerSelectElement.setAttribute("disabled", "true");
                     let startEventInputElement = args.element.querySelector('#startEventInput');
                     if (startEventInputElement) {
@@ -371,6 +371,26 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                         endEventInputElement.setAttribute("disabled", "true");
                     }
                     changePayButtonName("Modify")
+
+                    //to prevent the user from editing a non-own event
+                    if (memberId !== args.data.eventMemberId) {
+                        titleInputElement.setAttribute("disabled", "true");
+                        descriptionTextAreaElement.setAttribute("disabled", "true");
+                        const cancelButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
+                            "button.e-schedule-dialog.e-control.e-btn.e-lib.e-event-delete.e-flat");
+                        if (cancelButton) {
+                            cancelButton.setAttribute("hidden", "true");
+                        }
+                        const modifyButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
+                            "button.e-schedule-dialog.e-control.e-btn.e-lib.e-primary.e-event-save.e-flat");
+                        if (modifyButton) {
+                            modifyButton.setAttribute("hidden", "true");
+                        }
+                        const dialogTitle = document.querySelector("#_dialog_wrapper_title > div");
+                        if (dialogTitle) {
+                            dialogTitle.innerHTML = "Check Event";
+                        }
+                    }
                 }
             }, 10);
         }
@@ -406,6 +426,8 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             props !== undefined ?
                 <div>
                     <input id="trainerIdInput" type="text" className="e-field" data-name="trainerId" disabled hidden/>
+                    <input id="eventMemberIdInput" type="text" className="e-field" data-name="eventMemberId" disabled
+                           hidden/>
                     <div className="mb-1">
                         <label className="col-form-label">Title</label>
                         <input id="titleInput" type="text" className="e-field form-control" data-name="title"/>
@@ -486,39 +508,42 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
 
     return (
         <>
-            <NavBar isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar} onChangeCalendar={() => {
-                setIsMyCalendar(!isMyCalendar);
-            }}/>
+            <NavBar isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar}
+                    onChangeCalendar={() => {
+                        setIsMyCalendar(!isMyCalendar);
+                    }}/>
             <ScheduleComponent height='850px' selectedDate={selectedDate.toDateString()} eventSettings={eventSettings}
                                workHours={workHours} ref={scheduleObj} popupClose={onPopupClose} popupOpen={onPopupOpen}
                                editorTemplate={editorTemplate} showQuickInfo={false} actionBegin={onActionBegin}>
                 <Inject services={[Day, Week, WorkWeek, Month, Agenda]}/>
             </ScheduleComponent>
-                <Modal
-                    contentClassName="rounded-0"
-                    show={deleteModalShow}
-                    onHide={() => setDeleteModalShow(false)}
-                    keyboard={false}
-                    centered
-                    size="sm"
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title>
-                            Cancel Event
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        Do you really want to cancel the event?<br/><b>You will not get a refund.</b>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button className="e-schedule-dialog e-control e-btn e-lib e-primary e-event-save e-flat" onClick={handleDeleteConfirmationClose}>
-                            Yes
-                        </Button>
-                        <Button className="e-schedule-dialog e-control e-btn e-lib e-event-cancel e-flat" onClick={() => setDeleteModalShow(false)}>
-                            No
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
+            <Modal
+                contentClassName="rounded-0"
+                show={deleteModalShow}
+                onHide={() => setDeleteModalShow(false)}
+                keyboard={false}
+                centered
+                size="sm"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        Cancel Event
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Do you really want to cancel the event?<br/><b>You will not get a refund.</b>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button className="e-schedule-dialog e-control e-btn e-lib e-primary e-event-save e-flat"
+                            onClick={handleDeleteConfirmationApply}>
+                        Yes
+                    </Button>
+                    <Button className="e-schedule-dialog e-control e-btn e-lib e-event-cancel e-flat"
+                            onClick={() => setDeleteModalShow(false)}>
+                        No
+                    </Button>
+                </Modal.Footer>
+            </Modal>
             <Modal
                 contentClassName="rounded-0"
                 show={modalShow}
@@ -657,10 +682,12 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button className="e-schedule-dialog e-control e-btn e-lib e-primary e-event-save e-flat" onClick={() => payForTraining(price, currency, paymentMethod, title)}>
+                    <Button className="e-schedule-dialog e-control e-btn e-lib e-primary e-event-save e-flat"
+                            onClick={() => payForTraining(price, currency, paymentMethod, title)}>
                         I am paying
                     </Button>
-                    <Button className="e-schedule-dialog e-control e-btn e-lib e-event-cancel e-flat" onClick={handleClose}>
+                    <Button className="e-schedule-dialog e-control e-btn e-lib e-event-cancel e-flat"
+                            onClick={handleClose}>
                         Cancel
                     </Button>
                 </Modal.Footer>
