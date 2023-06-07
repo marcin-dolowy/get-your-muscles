@@ -1,4 +1,4 @@
-package com.example.getyourmuscles.security.auth;
+package com.example.getyourmuscles.security.auth.model;
 
 import com.example.getyourmuscles.security.user.model.entity.Role;
 import java.math.BigDecimal;
