@@ -147,7 +147,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 startEvent: new Date(responseEvent.startEvent),
                 endEvent: new Date(responseEvent.endEvent),
                 trainerId: parseInt(responseEvent.trainer.id),
-                eventMemberId: responseEvent.member.id
+                eventMemberId: parseInt(responseEvent.member.id)
             };
             parsedEventsData.push(parsedEvent);
         });
@@ -345,6 +345,10 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 if (trainerIdInputElement) {
                     trainerIdInputElement.value = args.data.trainerId || "";
                 }
+                let eventMemberIdInputElement = args.element.querySelector('#eventMemberIdInput');
+                if (eventMemberIdInputElement) {
+                    eventMemberIdInputElement.value = args.data.eventMemberId || "";
+                }
                 let titleInputElement = args.element.querySelector('#titleInput');
                 if (titleInputElement) {
                     titleInputElement.value = args.data.title || "";
@@ -379,12 +383,12 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                         const cancelButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
                             "button.e-schedule-dialog.e-control.e-btn.e-lib.e-event-delete.e-flat");
                         if (cancelButton) {
-                            cancelButton.setAttribute("hidden", "true");
+                            cancelButton.classList.add("e-disable");
                         }
                         const modifyButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
                             "button.e-schedule-dialog.e-control.e-btn.e-lib.e-primary.e-event-save.e-flat");
                         if (modifyButton) {
-                            modifyButton.setAttribute("hidden", "true");
+                            modifyButton.classList.add("e-disable");
                         }
                         const dialogTitle = document.querySelector("#_dialog_wrapper_title > div");
                         if (dialogTitle) {
@@ -412,6 +416,10 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                     }
                 }
             }
+            const eventMemberIdInputElement = args.element.querySelector('#eventMemberIdInput');
+            if (eventMemberIdInputElement) {
+                args.data.eventMemberId = parseInt(eventMemberIdInputElement.value);
+            }
         }
     }
 
@@ -421,6 +429,11 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         // console.log(scheduleObj.current.getEvents(), "scheduleObj.current.getEvents() - editorTemplate");
         console.log(events, "events - editorTemplate");
         changePayButtonName("Pay");
+        const modifyButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
+            "button.e-schedule-dialog.e-control.e-btn.e-lib.e-primary.e-event-save.e-flat");
+        if (modifyButton) {
+            modifyButton.classList.remove("e-disable");
+        }
 
         return (
             props !== undefined ?
