@@ -47,7 +47,8 @@ public class PaypalController {
     }
 
     @GetMapping("/pay/success")
-    public RedirectView successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId) {
+    public RedirectView successPay(
+            @RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId) {
         try {
             Payment payment = service.executePayment(paymentId, payerId);
             System.out.println(payment.toJSON());
