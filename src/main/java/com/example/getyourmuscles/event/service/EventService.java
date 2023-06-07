@@ -35,7 +35,7 @@ public class EventService {
     }
 
     public Long findLastEventId() {
-        log.info("Finding ID for last event");
+        log.info("Searching for an event with a recent ID");
         return eventRepository
                 .findFirstByOrderByIdDesc()
                 .orElseThrow(() -> {
