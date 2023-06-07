@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -49,13 +50,23 @@ public class EventService {
     }
 
     public List<Event> findAll() {
+        List<Event> events = eventRepository.findAll();
+        if (CollectionUtils.isEmpty(events)) {
+            log.warn("Events not found");
+            throw new EventNotFoundException("There are no events in the calendar");
+        }
         log.info("Finding all events");
-        return eventRepository.findAll();
+        return events;
     }
 
     public List<Event> findEventsByMemberId(Long id) {
-        log.info("Finding event by member ID: {}", id);
-        return eventRepository.findEventsByMemberId(id);
+        List<Event> memberEvents = eventRepository.findEventsByMemberId(id);
+        log.info("Finding events by member ID: {}", id);
+        if (CollectionUtils.isEmpty(memberEvents)) {
+            log.warn("Events for user with ID: {} not found", id);
+            throw new EventNotFoundException("You have no upcoming events");
+        }
+        return memberEvents;
     }
 
     public BigDecimal countTrainingPrice(EventSession eventSession) {
