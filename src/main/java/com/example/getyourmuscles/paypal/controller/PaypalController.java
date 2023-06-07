@@ -1,22 +1,25 @@
 package com.example.getyourmuscles.paypal.controller;
 
+import com.example.getyourmuscles.event.model.Event;
+import com.example.getyourmuscles.event.service.EventService;
 import com.example.getyourmuscles.paypal.model.Order;
 import com.example.getyourmuscles.paypal.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
+@RequiredArgsConstructor
 public class PaypalController {
 
-    final PaypalService service;
+    private final PaypalService service;
+    private final EventService eventService;
     public final String RETURN_URL = "http://localhost:3000/calendar";
 
-    public PaypalController(PaypalService service) {
-        this.service = service;
-    }
+    private Event event;
 
     @PostMapping("/pay")
     public String payment(@RequestBody Order order) {
@@ -26,15 +29,15 @@ public class PaypalController {
                     order.getCurrency(),
                     order.getMethod(),
                     order.getIntent(),
-                    order.getDescription(),
+                    order.getEvent().getTitle(),
                     "http://localhost:8080/pay/cancel",
                     "http://localhost:8080/pay/success");
             for (Links link : payment.getLinks()) {
                 if (link.getRel().equals("approval_url")) {
+                    this.event = order.getEvent();
                     return link.getHref();
                 }
             }
-
         } catch (PayPalRESTException e) {
             e.printStackTrace();
         }
@@ -53,6 +56,7 @@ public class PaypalController {
             Payment payment = service.executePayment(paymentId, payerId);
             System.out.println(payment.toJSON());
             if (payment.getState().equals("approved")) {
+                eventService.addEvent(event);
                 return new RedirectView(RETURN_URL);
             }
         } catch (PayPalRESTException e) {
