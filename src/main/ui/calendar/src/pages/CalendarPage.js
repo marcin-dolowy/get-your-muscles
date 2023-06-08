@@ -19,6 +19,18 @@ L10n.load({
 });
 
 const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
+    let colors = [
+        '#ff8787', '#fdd835', '#0ad78b', '#3bc9db', '#69db7c',
+        '#9775fa', '#748ffc', '#3909c4', '#df5286', '#7fa900',
+        '#fec200', '#5978ee', '#00bdae', '#ea80fc', '#CCFFCC',
+        '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF',
+        '#FF00FF', '#800000', '#008000', '#000080', '#808000',
+        '#800080', '#008080', '#808080', '#C0C0C0', '#FF6666',
+        '#FFFF66', '#66FF66', '#66FFFF', '#6666FF', '#FF66FF',
+        '#FF9999', '#99FF99', '#99FFFF', '#9999FF', '#FF99FF',
+        '#FFCC99', '#CCFF99', '#99FFCC', '#CC99FF', '#FF99CC',
+        '#FFCCCC'
+    ];
     //variables necessary to payment
     const [price, setPrice] = useState("");
     const [currency, setCurrency] = useState("");
@@ -501,6 +513,19 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             });
     };
 
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function onEventRendered(args) {
+        // shuffleArray(colors);
+        args.element.style.backgroundColor = colors[args.data.eventMemberId % colors.length]
+    }
+
     return (
         <>
             <NavBar isMyCalendar={isMyCalendar} setIsMyCalendar={setIsMyCalendar}
@@ -509,7 +534,8 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                     }}/>
             <ScheduleComponent height='850px' selectedDate={selectedDate.toDateString()} eventSettings={eventSettings}
                                workHours={workHours} ref={scheduleObj} popupClose={onPopupClose} popupOpen={onPopupOpen}
-                               editorTemplate={editorTemplate} showQuickInfo={false} actionBegin={onActionBegin}>
+                               editorTemplate={editorTemplate} showQuickInfo={false} actionBegin={onActionBegin}
+                               eventRendered={onEventRendered}>
                 <Inject services={[Day, Week, WorkWeek, Month, Agenda]}/>
             </ScheduleComponent>
             <Modal
