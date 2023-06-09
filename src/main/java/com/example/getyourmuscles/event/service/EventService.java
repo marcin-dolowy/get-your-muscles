@@ -1,6 +1,8 @@
 package com.example.getyourmuscles.event.service;
 
+import com.example.getyourmuscles.event.exception.EventCreationInPastException;
 import com.example.getyourmuscles.event.exception.EventNotFoundException;
+import com.example.getyourmuscles.event.exception.InvalidEventScheduleException;
 import com.example.getyourmuscles.event.exception.UnauthorizedOperationException;
 import com.example.getyourmuscles.event.model.Event;
 import com.example.getyourmuscles.event.model.EventSession;
@@ -87,9 +89,29 @@ public class EventService {
             return new UserNotFoundException("User not found");
         });
 
+        validateEventSchedule(event);
+
+        validateEventStartTime(event);
+
         BigDecimal trainingTime = calculateTrainingTimeInMinutes(event, Event::getStartEvent, Event::getEndEvent);
         event.setPrice(trainer.getTrainingPrice().add(trainingTime));
         return eventRepository.save(event);
+    }
+
+    private static void validateEventStartTime(Event event) {
+        if (event.getStartEvent().isBefore(LocalDateTime.now())) {
+            log.info("Current time: {}", LocalDateTime.now());
+            throw new EventCreationInPastException("The event cannot be created in the past");
+        }
+    }
+
+    private static void validateEventSchedule(Event event) {
+        if (event.getEndEvent().isBefore(event.getStartEvent())) {
+            log.warn(
+                    "Invalid Event duration. Start time: {}, end time: {}", event.getStartEvent(), event.getEndEvent());
+            throw new InvalidEventScheduleException(
+                    "Invalid event duration. The end date is earlier than the start date.");
+        }
     }
 
     public static <T> BigDecimal calculateTrainingTimeInMinutes(
