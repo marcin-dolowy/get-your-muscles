@@ -8,23 +8,25 @@ import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 public class PaypalController {
 
-    private final PaypalService service;
+    private final PaypalService paypalService;
     private final EventService eventService;
-    public final String RETURN_URL = "http://localhost:3000/calendar";
+    private final String RETURN_URL = "http://localhost:3000/calendar";
 
     private Event event;
 
     @PostMapping("/pay")
     public String payment(@RequestBody Order order) {
         try {
-            Payment payment = service.createPayment(
+            Payment payment = paypalService.createPayment(
                     order.getPrice(),
                     order.getCurrency(),
                     order.getMethod(),
@@ -39,7 +41,7 @@ public class PaypalController {
                 }
             }
         } catch (PayPalRESTException e) {
-            e.printStackTrace();
+            log.error("An error occurred while creating a PayPal payment. Details: " + e.getMessage());
         }
         return "failed";
     }
@@ -53,14 +55,14 @@ public class PaypalController {
     public RedirectView successPay(
             @RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId) {
         try {
-            Payment payment = service.executePayment(paymentId, payerId);
-            System.out.println(payment.toJSON());
+            Payment payment = paypalService.executePayment(paymentId, payerId);
             if (payment.getState().equals("approved")) {
+                log.info("Successfully added event: {}", event);
                 eventService.addEvent(event);
                 return new RedirectView(RETURN_URL);
             }
         } catch (PayPalRESTException e) {
-            System.out.println(e.getMessage());
+            log.error("An error occurred while executing the PayPal payment. Details: " + e.getMessage());
         }
         return new RedirectView(RETURN_URL);
     }
