@@ -32,7 +32,12 @@ public class EventController {
 
     @GetMapping("/member/{id}")
     public ResponseEntity<List<Event>> findEventsByMemberId(@PathVariable Long id) {
-        return ResponseEntity.ok(eventService.findEventsByMemberId(id));
+        return ResponseEntity.ok(eventService.findEventsByUserId(id, eventService::findEventsByMemberId));
+    }
+
+    @GetMapping("/trainer/{id}")
+    public ResponseEntity<List<Event>> findEventsByTrainerId(@PathVariable Long id) {
+        return ResponseEntity.ok(eventService.findEventsByUserId(id, eventService::findEventsByTrainerId));
     }
 
     @PostMapping("/add")
