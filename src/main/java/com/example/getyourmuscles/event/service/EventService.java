@@ -80,21 +80,6 @@ public class EventService {
     }
 
     public BigDecimal countTrainingPrice(EventSession eventSession) {
-
-        if (eventSession.getStartEvent().isBefore(LocalDateTime.now())) {
-            log.info("Current time: {}", LocalDateTime.now());
-            throw new EventCreationInPastException("The event cannot be created in the past");
-        }
-
-        if (eventSession.getEndEvent().isBefore(eventSession.getStartEvent())) {
-            log.warn(
-                    "Invalid Event duration. Start time: {}, end time: {}",
-                    eventSession.getStartEvent(),
-                    eventSession.getEndEvent());
-            throw new InvalidEventScheduleException(
-                    "Invalid event duration. The end date is earlier than the start date.");
-        }
-
         User trainer = userRepository.findById(eventSession.getId()).orElseThrow(() -> {
             log.warn("User not found with ID: {}", eventSession.getId());
             return new UserNotFoundException("User not found");
