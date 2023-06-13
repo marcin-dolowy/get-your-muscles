@@ -61,14 +61,22 @@ public class EventService {
         return events;
     }
 
-    public List<Event> findEventsByMemberId(Long id) {
-        List<Event> memberEvents = eventRepository.findEventsByMemberId(id);
-        log.info("Finding events by member ID: {}", id);
-        if (CollectionUtils.isEmpty(memberEvents)) {
+    public List<Event> findEventsByUserId(Long id, Function<Long, List<Event>> eventFinder) {
+        List<Event> events = eventFinder.apply(id);
+        log.info("Finding events by user ID: {}", id);
+        if (CollectionUtils.isEmpty(events)) {
             log.warn("Events for user with ID: {} not found", id);
             throw new EventNotFoundException("You have no upcoming events");
         }
-        return memberEvents;
+        return events;
+    }
+
+    public List<Event> findEventsByMemberId(Long id) {
+        return findEventsByUserId(id, eventRepository::findEventsByMemberId);
+    }
+
+    public List<Event> findEventsByTrainerId(Long id) {
+        return findEventsByUserId(id, eventRepository::findEventsByTrainerId);
     }
 
     public BigDecimal countTrainingPrice(EventSession eventSession) {

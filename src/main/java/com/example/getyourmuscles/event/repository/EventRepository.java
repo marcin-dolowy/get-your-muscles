@@ -10,5 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findEventsByMemberId(Long id);
 
+    List<Event> findEventsByTrainerId(Long id);
+
     Optional<Event> findFirstByOrderByIdDesc();
 }
