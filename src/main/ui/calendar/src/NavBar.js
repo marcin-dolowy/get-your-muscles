@@ -11,7 +11,7 @@ const NavBar = ({isMyCalendar, setIsMyCalendar, onChangeCalendar}) => {
                 }
             })
             .then((response) => {
-                toast.error("Successfully logged out");
+                toast.info("Successfully logged out");
             })
             .catch((err) => {
                 console.log(err)
@@ -22,16 +22,13 @@ const NavBar = ({isMyCalendar, setIsMyCalendar, onChangeCalendar}) => {
     return (
         <nav className="navbar navbar-expand-lg bg-body-tertiary">
             <div className="container-fluid">
-                <a className="navbar-brand">Get Your Muscles</a>
-                <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                <Link className="navbar-brand" to="/">Get Your Muscles</Link>
+                <div className="collapse navbar-collapse">
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li className="nav-item">
-                            <Link className="nav-link" to="/">Home</Link>
-                        </li>
                         <li className="nav-item">
                             <button className="nav-link" onClick={() => {
                                 onChangeCalendar();
-                            }}>{isMyCalendar ? "Events Calendar" : "Calendar"}</button>
+                            }}>{isMyCalendar ? "All Events" : "My Events"}</button>
                         </li>
                     </ul>
                     <div className="d-flex navbar-nav">

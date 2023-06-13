@@ -24,12 +24,11 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
         '#9775fa', '#748ffc', '#3909c4', '#df5286', '#7fa900',
         '#fec200', '#5978ee', '#00bdae', '#ea80fc', '#CCFFCC',
         '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#00FFFF',
-        '#FF00FF', '#800000', '#008000', '#000080', '#808000',
+        '#FF00FF', '#800000', '#008000', '#FFCCCC', '#808000',
         '#800080', '#008080', '#808080', '#C0C0C0', '#FF6666',
         '#FFFF66', '#66FF66', '#66FFFF', '#6666FF', '#FF66FF',
         '#FF9999', '#99FF99', '#99FFFF', '#9999FF', '#FF99FF',
-        '#FFCC99', '#CCFF99', '#99FFCC', '#CC99FF', '#FF99CC',
-        '#FFCCCC'
+        '#FFCC99', '#CCFF99', '#99FFCC', '#CC99FF', '#FF99CC'
     ];
     //variables necessary to payment
     const [price, setPrice] = useState("");
@@ -324,8 +323,6 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
     }
 
     const onPopupOpen = async (args) => {
-        console.log(args, "args - onPopupOpen");
-
         if (args.type === 'DeleteAlert') {
             args.cancel = true;
 
@@ -418,10 +415,6 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
     }
 
     const editorTemplate = (props) => {
-        // console.log(props, "props - editorTemplate")
-        // console.log(trainers, "trainers")
-        // console.log(scheduleObj.current.getEvents(), "scheduleObj.current.getEvents() - editorTemplate");
-        console.log(events, "events - editorTemplate");
         changePayButtonName("Pay");
         const modifyButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
             "button.e-schedule-dialog.e-control.e-btn.e-lib.e-primary.e-event-save.e-flat");
@@ -513,18 +506,13 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             });
     };
 
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
+    function onEventRendered(args) {
+        if (!isMyCalendar && args.data.eventMemberId !== memberId) {
+            args.element.style.backgroundColor = colors[args.data.eventMemberId % colors.length]
         }
-        return array;
     }
 
-    function onEventRendered(args) {
-        // shuffleArray(colors);
-        args.element.style.backgroundColor = colors[args.data.eventMemberId % colors.length]
-    }
+    // shuffleArray(colors);
 
     return (
         <>
