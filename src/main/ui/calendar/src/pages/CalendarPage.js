@@ -101,7 +101,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             })
             .catch((err) => {
                 console.log(err)
-                toast.error(err.message);
+                toast.error(err.response.data);
             });
 
         setDeleteModalShow(false);
@@ -197,11 +197,27 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
 
             } catch (err) {
                 console.log(err)
-                toast.error(err.message);
+                toast.info(err.response.data);
             }
         };
         loadData();
     }, [isMyCalendar]);
+
+    function addDisabledToModifyButton() {
+        const modifyButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
+            "button.e-schedule-dialog.e-control.e-btn.e-lib.e-primary.e-event-save.e-flat");
+        if (modifyButton) {
+            modifyButton.classList.add("e-disable");
+        }
+    }
+
+    function removeDisabledFromModifyButton() {
+        const modifyButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
+            "button.e-schedule-dialog.e-control.e-btn.e-lib.e-primary.e-event-save.e-flat");
+        if (modifyButton && modifyButton.classList.contains("e-disable")) {
+            modifyButton.classList.remove("e-disable");
+        }
+    }
 
     const calculateTotalPrice = () => {
         const trainerId = trainerObj.current.options[trainerObj.current.selectedIndex]?.getAttribute("data-key");
@@ -210,7 +226,23 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             startEvent: formatDate(startEventObj.current.value, false),
             endEvent: formatDate(endEventObj.current.value, false)
         };
+        let isEventOk = true;
 
+        if ((new Date(startEventObj.current.value) < new Date() || new Date(endEventObj.current.value) < new Date()) && scheduleObj.current.activeEventData.event === undefined) {
+            toast.error("The event cannot be created in the past");
+            addDisabledToModifyButton();
+            calculatedPriceObj.current.value = 0;
+            isEventOk = false;
+        } else if ((new Date(endEventObj.current.value) < new Date(startEventObj.current.value)) && scheduleObj.current.activeEventData.event === undefined) {
+            toast.error("Invalid event duration. The end date is earlier than the start date.");
+            addDisabledToModifyButton();
+            calculatedPriceObj.current.value = 0;
+            isEventOk = false;
+        }
+
+        if (isEventOk) {
+            removeDisabledFromModifyButton();
+        }
         axios
             .post("api/v1/events/price", orderData, {
                 headers: {
@@ -218,11 +250,13 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                 }
             })
             .then((response) => {
-                calculatedPriceObj.current.value = response.data;
+                if (isEventOk) {
+                    calculatedPriceObj.current.value = response.data;
+                }
             })
             .catch((err) => {
-                console.log(err)
-                toast.error(err.message);
+                console.log(err);
+                toast.error(err.response.data);
             });
     }
 
@@ -306,7 +340,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                     })
                     .catch((err) => {
                         console.log(err)
-                        toast.error(err.message);
+                        toast.error(err.response.data);
                     });
             }
         }
@@ -376,11 +410,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
                         if (cancelButton) {
                             cancelButton.classList.add("e-disable");
                         }
-                        const modifyButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
-                            "button.e-schedule-dialog.e-control.e-btn.e-lib.e-primary.e-event-save.e-flat");
-                        if (modifyButton) {
-                            modifyButton.classList.add("e-disable");
-                        }
+                        addDisabledToModifyButton();
                         const dialogTitle = document.querySelector("#_dialog_wrapper_title > div");
                         if (dialogTitle) {
                             dialogTitle.innerHTML = "Check Event";
@@ -416,11 +446,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
 
     const editorTemplate = (props) => {
         changePayButtonName("Pay");
-        const modifyButton = document.querySelector("#_dialog_wrapper > div.e-footer-content > " +
-            "button.e-schedule-dialog.e-control.e-btn.e-lib.e-primary.e-event-save.e-flat");
-        if (modifyButton) {
-            modifyButton.classList.remove("e-disable");
-        }
+        removeDisabledFromModifyButton();
 
         return (
             props !== undefined ?
@@ -502,7 +528,7 @@ const CalendarPage = ({isMyCalendar, setIsMyCalendar}) => {
             })
             .catch((err) => {
                 console.log(err);
-                toast.error(err.message);
+                toast.error(err.response.data);
             });
     };
 

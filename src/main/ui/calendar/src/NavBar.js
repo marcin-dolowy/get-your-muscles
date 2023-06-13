@@ -11,7 +11,7 @@ const NavBar = ({isMyCalendar, setIsMyCalendar, onChangeCalendar}) => {
                 }
             })
             .then((response) => {
-                toast.info("Successfully logged out");
+                toast.success("Successfully logged out");
             })
             .catch((err) => {
                 console.log(err)
